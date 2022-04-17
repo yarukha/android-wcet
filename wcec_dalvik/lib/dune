@@ -1,0 +1,7 @@
+(library
+ (name wcec_dalvik))
+
+(menhir
+  (modules dvkparser))
+
+(ocamllex dvklexer)
