@@ -1,20 +1,28 @@
-type instruction = Inst of(string)
+type operator = Unknown | Operator of string
+type operand = Nil | Operand of string
+
+type instruction = Inst of(operator * operand * operand )
 
 type id = string
 type methode = id * instruction list
 type classe = id * methode list
 type program = classe list
 
-let inst = [Inst("ahahahah"); Inst("bhbhbhbh")]
-let m = ("method",inst)
-let c: classe = ("classe",[m])
-let p = [c]
 
 
+let pp_operator op = 
+  match op with 
+  |Unknown-> Printf.sprintf "unknown operator"  
+  |Operator(o)->Printf.sprintf "%s" o
+
+let pp_operand x = 
+  match x with
+  |Nil -> Printf.sprintf ""
+  |Operand(o)->Printf.sprintf "%s" o 
 
 let pp_instruction instruction = 
   match instruction with 
-  |Inst(i)->Printf.sprintf "\t\t%s\n" i
+  |Inst(operator,op1,op2)->Printf.sprintf "\t\t%s %s %s\n" (pp_operator operator) (pp_operand op1) (pp_operand op2) 
 
 let pp_id id = id
 

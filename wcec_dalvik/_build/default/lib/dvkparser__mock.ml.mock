@@ -1,18 +1,18 @@
 
 type token = 
   | METHOD_START of (
-# 6 "lib/dvkparser.mly"
+# 20 "lib/dvkparser.mly"
        (string)
 # 7 "lib/dvkparser__mock.ml.mock"
 )
   | INSTR of (
-# 7 "lib/dvkparser.mly"
+# 21 "lib/dvkparser.mly"
        (string)
 # 12 "lib/dvkparser__mock.ml.mock"
 )
   | EOF
   | CLASS_START of (
-# 5 "lib/dvkparser.mly"
+# 19 "lib/dvkparser.mly"
        (string)
 # 18 "lib/dvkparser__mock.ml.mock"
 )
@@ -21,7 +21,21 @@ type token =
   
     open Dvk
 
-# 25 "lib/dvkparser__mock.ml.mock"
+    let translate_operator op = 
+        match op with 
+        |_ -> failwith "unknown operator"
+
+    let translate_operand x = 
+        match x with 
+        |_ -> Operand(x)
+
+    let translate_instruction s = 
+        match String.split_on_char ' ' s with 
+        |[op;x1;x2]->Inst(translate_operator op, translate_operand x1,translate_operand x2)
+        |_ -> failwith "wrong translation" 
+        
+
+# 39 "lib/dvkparser__mock.ml.mock"
 
 let menhir_begin_marker =
   0
@@ -30,148 +44,148 @@ and (xv_program, xv_nonempty_list_classe_, xv_methode, xv_list_methode_, xv_list
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
 # 219 "<standard.mly>"
          xs
-# 34 "lib/dvkparser__mock.ml.mock"
+# 48 "lib/dvkparser__mock.ml.mock"
    : 'tv_nonempty_list_classe_) (_startpos_xs_ : Lexing.position) (_endpos_xs_ : Lexing.position) (_startofs_xs_ : int) (_endofs_xs_ : int) (_loc_xs_ : Lexing.position * Lexing.position) (
 # 219 "<standard.mly>"
   x
-# 38 "lib/dvkparser__mock.ml.mock"
+# 52 "lib/dvkparser__mock.ml.mock"
    : 'tv_classe) (_startpos_x_ : Lexing.position) (_endpos_x_ : Lexing.position) (_startofs_x_ : int) (_endofs_x_ : int) (_loc_x_ : Lexing.position * Lexing.position) ->
     (
 # 220 "<standard.mly>"
     ( x :: xs )
-# 43 "lib/dvkparser__mock.ml.mock"
+# 57 "lib/dvkparser__mock.ml.mock"
      : 'tv_nonempty_list_classe_) in
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
 # 217 "<standard.mly>"
   x
-# 48 "lib/dvkparser__mock.ml.mock"
+# 62 "lib/dvkparser__mock.ml.mock"
    : 'tv_classe) (_startpos_x_ : Lexing.position) (_endpos_x_ : Lexing.position) (_startofs_x_ : int) (_endofs_x_ : int) (_loc_x_ : Lexing.position * Lexing.position) ->
     (
 # 218 "<standard.mly>"
     ( [ x ] )
-# 53 "lib/dvkparser__mock.ml.mock"
+# 67 "lib/dvkparser__mock.ml.mock"
      : 'tv_nonempty_list_classe_) in
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
 # 209 "<standard.mly>"
          xs
-# 58 "lib/dvkparser__mock.ml.mock"
+# 72 "lib/dvkparser__mock.ml.mock"
    : 'tv_list_methode_) (_startpos_xs_ : Lexing.position) (_endpos_xs_ : Lexing.position) (_startofs_xs_ : int) (_endofs_xs_ : int) (_loc_xs_ : Lexing.position * Lexing.position) (
 # 209 "<standard.mly>"
   x
-# 62 "lib/dvkparser__mock.ml.mock"
+# 76 "lib/dvkparser__mock.ml.mock"
    : 'tv_methode) (_startpos_x_ : Lexing.position) (_endpos_x_ : Lexing.position) (_startofs_x_ : int) (_endofs_x_ : int) (_loc_x_ : Lexing.position * Lexing.position) ->
     (
 # 210 "<standard.mly>"
     ( x :: xs )
-# 67 "lib/dvkparser__mock.ml.mock"
+# 81 "lib/dvkparser__mock.ml.mock"
      : 'tv_list_methode_) in
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) ->
     (
 # 208 "<standard.mly>"
     ( [] )
-# 73 "lib/dvkparser__mock.ml.mock"
+# 87 "lib/dvkparser__mock.ml.mock"
      : 'tv_list_methode_) in
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
 # 209 "<standard.mly>"
          xs
-# 78 "lib/dvkparser__mock.ml.mock"
+# 92 "lib/dvkparser__mock.ml.mock"
    : 'tv_list_instruction_) (_startpos_xs_ : Lexing.position) (_endpos_xs_ : Lexing.position) (_startofs_xs_ : int) (_endofs_xs_ : int) (_loc_xs_ : Lexing.position * Lexing.position) (
 # 209 "<standard.mly>"
   x
-# 82 "lib/dvkparser__mock.ml.mock"
+# 96 "lib/dvkparser__mock.ml.mock"
    : 'tv_instruction) (_startpos_x_ : Lexing.position) (_endpos_x_ : Lexing.position) (_startofs_x_ : int) (_endofs_x_ : int) (_loc_x_ : Lexing.position * Lexing.position) ->
     (
 # 210 "<standard.mly>"
     ( x :: xs )
-# 87 "lib/dvkparser__mock.ml.mock"
+# 101 "lib/dvkparser__mock.ml.mock"
      : 'tv_list_instruction_) in
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) ->
     (
 # 208 "<standard.mly>"
     ( [] )
-# 93 "lib/dvkparser__mock.ml.mock"
+# 107 "lib/dvkparser__mock.ml.mock"
      : 'tv_list_instruction_) in
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
-# 17 "lib/dvkparser.mly"
+# 31 "lib/dvkparser.mly"
      _1
-# 98 "lib/dvkparser__mock.ml.mock"
+# 112 "lib/dvkparser__mock.ml.mock"
    : unit) (_startpos__1_ : Lexing.position) (_endpos__1_ : Lexing.position) (_startofs__1_ : int) (_endofs__1_ : int) (_loc__1_ : Lexing.position * Lexing.position) ->
     ((
-# 17 "lib/dvkparser.mly"
+# 31 "lib/dvkparser.mly"
          (None)
-# 103 "lib/dvkparser__mock.ml.mock"
+# 117 "lib/dvkparser__mock.ml.mock"
      : 'tv_program) : (
-# 12 "lib/dvkparser.mly"
+# 26 "lib/dvkparser.mly"
       (Dvk.program option)
-# 107 "lib/dvkparser__mock.ml.mock"
+# 121 "lib/dvkparser__mock.ml.mock"
     )) in
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
-# 16 "lib/dvkparser.mly"
+# 30 "lib/dvkparser.mly"
                               _2
-# 112 "lib/dvkparser__mock.ml.mock"
+# 126 "lib/dvkparser__mock.ml.mock"
    : unit) (_startpos__2_ : Lexing.position) (_endpos__2_ : Lexing.position) (_startofs__2_ : int) (_endofs__2_ : int) (_loc__2_ : Lexing.position * Lexing.position) (
-# 16 "lib/dvkparser.mly"
+# 30 "lib/dvkparser.mly"
      p
-# 116 "lib/dvkparser__mock.ml.mock"
+# 130 "lib/dvkparser__mock.ml.mock"
    : 'tv_nonempty_list_classe_) (_startpos_p_ : Lexing.position) (_endpos_p_ : Lexing.position) (_startofs_p_ : int) (_endofs_p_ : int) (_loc_p_ : Lexing.position * Lexing.position) ->
     ((
-# 16 "lib/dvkparser.mly"
+# 30 "lib/dvkparser.mly"
                                    (Some(p))
-# 121 "lib/dvkparser__mock.ml.mock"
+# 135 "lib/dvkparser__mock.ml.mock"
      : 'tv_program) : (
-# 12 "lib/dvkparser.mly"
+# 26 "lib/dvkparser.mly"
       (Dvk.program option)
-# 125 "lib/dvkparser__mock.ml.mock"
+# 139 "lib/dvkparser__mock.ml.mock"
     )) in
   let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
-# 26 "lib/dvkparser.mly"
+# 40 "lib/dvkparser.mly"
                          instr
-# 130 "lib/dvkparser__mock.ml.mock"
+# 144 "lib/dvkparser__mock.ml.mock"
    : 'tv_list_instruction_) (_startpos_instr_ : Lexing.position) (_endpos_instr_ : Lexing.position) (_startofs_instr_ : int) (_endofs_instr_ : int) (_loc_instr_ : Lexing.position * Lexing.position) (
-# 26 "lib/dvkparser.mly"
+# 40 "lib/dvkparser.mly"
      id
-# 134 "lib/dvkparser__mock.ml.mock"
-   : (
-# 6 "lib/dvkparser.mly"
-       (string)
-# 138 "lib/dvkparser__mock.ml.mock"
-  )) (_startpos_id_ : Lexing.position) (_endpos_id_ : Lexing.position) (_startofs_id_ : int) (_endofs_id_ : int) (_loc_id_ : Lexing.position * Lexing.position) ->
-    (
-# 26 "lib/dvkparser.mly"
-                                                   ((id,instr))
-# 143 "lib/dvkparser__mock.ml.mock"
-     : 'tv_methode) in
-  let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
-# 29 "lib/dvkparser.mly"
-     instr
 # 148 "lib/dvkparser__mock.ml.mock"
    : (
-# 7 "lib/dvkparser.mly"
+# 20 "lib/dvkparser.mly"
        (string)
 # 152 "lib/dvkparser__mock.ml.mock"
-  )) (_startpos_instr_ : Lexing.position) (_endpos_instr_ : Lexing.position) (_startofs_instr_ : int) (_endofs_instr_ : int) (_loc_instr_ : Lexing.position * Lexing.position) ->
-    (
-# 29 "lib/dvkparser.mly"
-                   (Inst(instr))
-# 157 "lib/dvkparser__mock.ml.mock"
-     : 'tv_instruction) in
-  let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
-# 21 "lib/dvkparser.mly"
-                        c
-# 162 "lib/dvkparser__mock.ml.mock"
-   : 'tv_list_methode_) (_startpos_c_ : Lexing.position) (_endpos_c_ : Lexing.position) (_startofs_c_ : int) (_endofs_c_ : int) (_loc_c_ : Lexing.position * Lexing.position) (
-# 21 "lib/dvkparser.mly"
-     id
-# 166 "lib/dvkparser__mock.ml.mock"
-   : (
-# 5 "lib/dvkparser.mly"
-       (string)
-# 170 "lib/dvkparser__mock.ml.mock"
   )) (_startpos_id_ : Lexing.position) (_endpos_id_ : Lexing.position) (_startofs_id_ : int) (_endofs_id_ : int) (_loc_id_ : Lexing.position * Lexing.position) ->
     (
+# 40 "lib/dvkparser.mly"
+                                                   ((id,instr))
+# 157 "lib/dvkparser__mock.ml.mock"
+     : 'tv_methode) in
+  let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
+# 43 "lib/dvkparser.mly"
+     instr
+# 162 "lib/dvkparser__mock.ml.mock"
+   : (
 # 21 "lib/dvkparser.mly"
+       (string)
+# 166 "lib/dvkparser__mock.ml.mock"
+  )) (_startpos_instr_ : Lexing.position) (_endpos_instr_ : Lexing.position) (_startofs_instr_ : int) (_endofs_instr_ : int) (_loc_instr_ : Lexing.position * Lexing.position) ->
+    (
+# 43 "lib/dvkparser.mly"
+                   (translate_instruction instr)
+# 171 "lib/dvkparser__mock.ml.mock"
+     : 'tv_instruction) in
+  let _ = fun (_startpos : Lexing.position) (_endpos : Lexing.position) (_endpos__0_ : Lexing.position) (_symbolstartpos : Lexing.position) (_startofs : int) (_endofs : int) (_endofs__0_ : int) (_symbolstartofs : int) (_sloc : Lexing.position * Lexing.position) (_loc : Lexing.position * Lexing.position) (
+# 35 "lib/dvkparser.mly"
+                        c
+# 176 "lib/dvkparser__mock.ml.mock"
+   : 'tv_list_methode_) (_startpos_c_ : Lexing.position) (_endpos_c_ : Lexing.position) (_startofs_c_ : int) (_endofs_c_ : int) (_loc_c_ : Lexing.position * Lexing.position) (
+# 35 "lib/dvkparser.mly"
+     id
+# 180 "lib/dvkparser__mock.ml.mock"
+   : (
+# 19 "lib/dvkparser.mly"
+       (string)
+# 184 "lib/dvkparser__mock.ml.mock"
+  )) (_startpos_id_ : Lexing.position) (_endpos_id_ : Lexing.position) (_startofs_id_ : int) (_endofs_id_ : int) (_loc_id_ : Lexing.position * Lexing.position) ->
+    (
+# 35 "lib/dvkparser.mly"
                                           ((id,c))
-# 175 "lib/dvkparser__mock.ml.mock"
+# 189 "lib/dvkparser__mock.ml.mock"
      : 'tv_classe) in
   ((let rec diverge() = diverge() in diverge()) : 'tv_program * 'tv_nonempty_list_classe_ * 'tv_methode * 'tv_list_methode_ * 'tv_list_instruction_ * 'tv_instruction * 'tv_classe)
 
