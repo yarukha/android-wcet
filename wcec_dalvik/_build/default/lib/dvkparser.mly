@@ -1,18 +1,5 @@
 %{
     open Dvk
-
-    let translate_operator op = 
-        match op with 
-        |_ -> failwith "unknown operator"
-
-    let translate_operand x = 
-        match x with 
-        |_ -> Operand(x)
-
-    let translate_instruction s = 
-        match String.split_on_char ' ' s with 
-        |[op;x1;x2]->Inst(translate_operator op, translate_operand x1,translate_operand x2)
-        |_ -> failwith "wrong translation" 
         
 %}
 
@@ -40,5 +27,5 @@ methode:
     |id = METHOD_START ; instr = list(instruction) {(id,instr)}
 
 instruction: 
-    |instr = INSTR {translate_instruction instr}
+    |instr = INSTR {Inst(instr)}
     ;

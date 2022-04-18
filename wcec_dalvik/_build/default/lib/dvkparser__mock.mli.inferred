@@ -3,9 +3,6 @@ type token =
   | INSTR of string
   | EOF
   | CLASS_START of string
-val translate_operator : 'a -> 'b
-val translate_operand : string -> Dvk.operand
-val translate_instruction : string -> Dvk.instruction
 val menhir_begin_marker : int
 val xv_program : Dvk.program option
 val xv_nonempty_list_classe_ : Dvk.program

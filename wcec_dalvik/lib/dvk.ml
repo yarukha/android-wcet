@@ -1,38 +1,46 @@
-type operator = Unknown | Operator of string
-type operand = Nil | Operand of string
+type class_descriptor =  Descriptor of string
+type flags = Flags of string 
+type undefined_type = Unknown
 
-type instruction = Inst of(operator * operand * operand )
+type instruction = 
+  Inst of string 
+  |Unmatched
 
-type id = string
-type methode = id * instruction list
-type classe = id * methode list
-type program = classe list
+type position = Pos of string
+type type_field = {
+  name : string; 
+  type_value : string; 
+  access : flags; 
+  value : int
+}
+type type_code = Empty_code 
+  |Code of {
+  registers : int; 
+  ins : int; 
+  outs: int; 
+  insns_size : string; 
+  instructions : instruction list; 
+}
+
+type type_method = {
+  name: string; 
+  type_value : string; 
+  access : flags; 
+  code : type_code
+}
 
 
 
-let pp_operator op = 
-  match op with 
-  |Unknown-> Printf.sprintf "unknown operator"  
-  |Operator(o)->Printf.sprintf "%s" o
+type type_class = {
+  descriptor : class_descriptor; 
+  access_flags : flags; 
+  superclass : class_descriptor ;
+  interfaces : undefined_type ;
+  static_fields : type_field list;  
+  instance_fields : undefined_type; 
+  direct_methods : type_method list; 
+  virtual_methods : type_method list; 
+  source_file_idx : undefined_type;
+}
 
-let pp_operand x = 
-  match x with
-  |Nil -> Printf.sprintf ""
-  |Operand(o)->Printf.sprintf "%s" o 
-
-let pp_instruction instruction = 
-  match instruction with 
-  |Inst(operator,op1,op2)->Printf.sprintf "\t\t%s %s %s\n" (pp_operator operator) (pp_operand op1) (pp_operand op2) 
-
-let pp_id id = id
-
-let pp_methode m = 
-  Printf.sprintf "\tMethod %s\n%s" (pp_id (fst(m))) 
-  (List.fold_left (fun s i -> s^(pp_instruction i)) "" (snd(m)))
-
-let pp_classe c = 
-  Printf.sprintf "%s\n%s" (pp_id (fst(c))) 
-  (List.fold_left (fun s m -> s^(pp_methode m)) "" (snd(c)))
-
-let pp_program p out = 
-  List.iter (fun c -> Printf.fprintf out "%s" (pp_classe c)) p
+type program = type_class list

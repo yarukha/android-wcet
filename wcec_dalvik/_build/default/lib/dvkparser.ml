@@ -9,18 +9,18 @@ module MenhirBasics = struct
   
   type token = 
     | METHOD_START of (
-# 20 "lib/dvkparser.mly"
+# 7 "lib/dvkparser.mly"
        (string)
 # 15 "lib/dvkparser.ml"
   )
     | INSTR of (
-# 21 "lib/dvkparser.mly"
+# 8 "lib/dvkparser.mly"
        (string)
 # 20 "lib/dvkparser.ml"
   )
     | EOF
     | CLASS_START of (
-# 19 "lib/dvkparser.mly"
+# 6 "lib/dvkparser.mly"
        (string)
 # 26 "lib/dvkparser.ml"
   )
@@ -32,22 +32,9 @@ include MenhirBasics
 # 1 "lib/dvkparser.mly"
   
     open Dvk
-
-    let translate_operator op = 
-        match op with 
-        |_ -> failwith "unknown operator"
-
-    let translate_operand x = 
-        match x with 
-        |_ -> Operand(x)
-
-    let translate_instruction s = 
-        match String.split_on_char ' ' s with 
-        |[op;x1;x2]->Inst(translate_operator op, translate_operand x1,translate_operand x2)
-        |_ -> failwith "wrong translation" 
         
 
-# 51 "lib/dvkparser.ml"
+# 38 "lib/dvkparser.ml"
 
 type ('s, 'r) _menhir_state = 
   | MenhirState00 : ('s, _menhir_box_program) _menhir_state
@@ -92,16 +79,16 @@ and ('s, 'r) _menhir_cell1_methode =
 
 and ('s, 'r) _menhir_cell1_CLASS_START = 
   | MenhirCell1_CLASS_START of 's * ('s, 'r) _menhir_state * (
-# 19 "lib/dvkparser.mly"
+# 6 "lib/dvkparser.mly"
        (string)
-# 98 "lib/dvkparser.ml"
+# 85 "lib/dvkparser.ml"
 )
 
 and ('s, 'r) _menhir_cell1_METHOD_START = 
   | MenhirCell1_METHOD_START of 's * ('s, 'r) _menhir_state * (
-# 20 "lib/dvkparser.mly"
+# 7 "lib/dvkparser.mly"
        (string)
-# 105 "lib/dvkparser.ml"
+# 92 "lib/dvkparser.ml"
 )
 
 and _menhir_box_program = 
@@ -110,17 +97,17 @@ and _menhir_box_program =
 let _menhir_action_01 =
   fun c id ->
     (
-# 35 "lib/dvkparser.mly"
+# 22 "lib/dvkparser.mly"
                                           ((id,c))
-# 116 "lib/dvkparser.ml"
+# 103 "lib/dvkparser.ml"
      : (Dvk.classe))
 
 let _menhir_action_02 =
   fun instr ->
     (
-# 43 "lib/dvkparser.mly"
-                   (translate_instruction instr)
-# 124 "lib/dvkparser.ml"
+# 30 "lib/dvkparser.mly"
+                   (Inst(instr))
+# 111 "lib/dvkparser.ml"
      : (Dvk.instruction))
 
 let _menhir_action_03 =
@@ -128,7 +115,7 @@ let _menhir_action_03 =
     (
 # 208 "<standard.mly>"
     ( [] )
-# 132 "lib/dvkparser.ml"
+# 119 "lib/dvkparser.ml"
      : (Dvk.instruction list))
 
 let _menhir_action_04 =
@@ -136,7 +123,7 @@ let _menhir_action_04 =
     (
 # 210 "<standard.mly>"
     ( x :: xs )
-# 140 "lib/dvkparser.ml"
+# 127 "lib/dvkparser.ml"
      : (Dvk.instruction list))
 
 let _menhir_action_05 =
@@ -144,7 +131,7 @@ let _menhir_action_05 =
     (
 # 208 "<standard.mly>"
     ( [] )
-# 148 "lib/dvkparser.ml"
+# 135 "lib/dvkparser.ml"
      : (Dvk.methode list))
 
 let _menhir_action_06 =
@@ -152,15 +139,15 @@ let _menhir_action_06 =
     (
 # 210 "<standard.mly>"
     ( x :: xs )
-# 156 "lib/dvkparser.ml"
+# 143 "lib/dvkparser.ml"
      : (Dvk.methode list))
 
 let _menhir_action_07 =
   fun id instr ->
     (
-# 40 "lib/dvkparser.mly"
+# 27 "lib/dvkparser.mly"
                                                    ((id,instr))
-# 164 "lib/dvkparser.ml"
+# 151 "lib/dvkparser.ml"
      : (Dvk.methode))
 
 let _menhir_action_08 =
@@ -168,7 +155,7 @@ let _menhir_action_08 =
     (
 # 218 "<standard.mly>"
     ( [ x ] )
-# 172 "lib/dvkparser.ml"
+# 159 "lib/dvkparser.ml"
      : (Dvk.program))
 
 let _menhir_action_09 =
@@ -176,23 +163,23 @@ let _menhir_action_09 =
     (
 # 220 "<standard.mly>"
     ( x :: xs )
-# 180 "lib/dvkparser.ml"
+# 167 "lib/dvkparser.ml"
      : (Dvk.program))
 
 let _menhir_action_10 =
   fun p ->
     (
-# 30 "lib/dvkparser.mly"
+# 17 "lib/dvkparser.mly"
                                    (Some(p))
-# 188 "lib/dvkparser.ml"
+# 175 "lib/dvkparser.ml"
      : (Dvk.program option))
 
 let _menhir_action_11 =
   fun () ->
     (
-# 31 "lib/dvkparser.mly"
+# 18 "lib/dvkparser.mly"
          (None)
-# 196 "lib/dvkparser.ml"
+# 183 "lib/dvkparser.ml"
      : (Dvk.program option))
 
 let _menhir_print_token : token -> string =
