@@ -5,19 +5,29 @@
 %token HEADER
 %token CLASS 
 (*class tokens*)
-%token DESCRIPTOR ACCESS_FLAGS SUPERCLASS INTERFACES STATIC_FIELDS INSTANCE_FIELDS DIRECT_METHODS VIRTUAL METHODS SOURCE_FILE_IDX
-%token <string> STRING 
+%token DESCRIPTOR ACCESS_FLAGS SUPERCLASS INTERFACES STATIC INSTANCE DIRECT VIRTUAL SOURCE_FILE_IDX
+%token <string> STRING
+%token <int> ADRESS  
+%token <string> FLAGS 
+%token <int> INT
+%token <bool> BOOL
+%token <float> FLOAT
+%token <string> SOURCE
+%token <string> SCI_NUMBER
+%token <string> BIG_INT
 (*fields and methods tokens *)
-%token NAME TYPE ACCESS VALUE CODE
+
+%token ID NAME TYPE ACCESS VALUE CODE 
+%token <string> LOCATION
+
 (*code tokens*)
-%token REGISTERS INS OUTS INSNS_SIZE NONE CATCHES POSITIONS
+
+%token REGISTERS INS OUTS INSNS_SIZE CODE_END NONE
+%token <string> SIZE
+%token <string> INSTR
 
 (*symbols token*)
-%token <string> ADRESS
-%token SHARP BAR COLON DASH NL QUOTE
-%token L_BRACKET R_BRACKET
-%token <int> INT
-%token <string> INST
+%token DASH COLON
 %token EOF
 
 %start program 
@@ -25,130 +35,91 @@
 %%
 
 program: 
-    |HEADER; p = list(classe);  EOF {Some(p)}
+    |HEADER ; l=list(classe); EOF {Some(Prog(l))}
     |EOF {None}
-    ;
 
 classe: 
-    |CLASS; DASH; 
-    desc = descriptor; 
-    flags = flags; 
-    super = super_class;
-    interf = interfaces; 
-    static = static_fields; 
-    instance = instance_fields; 
-    direct = direct_methods; 
-    virt = virtual_methods; 
-    source = source_file_idx {
-        descriptor = desc; 
-        access_flags = flags; 
-        superclass = super ;
-        interfaces = interf ;
-        static_fields = static;  
-        instance_fields = instance; 
-        direct_methods = direct; 
-        virtual_methods = virt; 
-        source_file_idx = source;
-        }
-    |_ {failwith "wrong class sntax"}
-    ;
+    |CLASS DASH 
+    descriptor flags superclass interfaces static instance direct virtual_m source_file{Empty_class}
 
 descriptor:
-    |DESCRIPTOR; COLON; QUOTE; s = STRING; QUOTE {Descriptor(s)}
-    |_ {failwith "wrong descriptor sntax"}
-    ;
+    |DESCRIPTOR COLON s = STRING {Descriptor(s)}
 
-flags: 
-    |ACCESS_FLAGS; COLON;a =  access {a}
-    |_ {failwith "wrong flags syntax"}
-    ;
-access:
-    | a = ADRESS; L_BRACKET; s = STRING; R_BRACKET {Flags(Printf.sprintf "%s (%s)" a s)}
-    |_ {failwith "wrong access syntax"}
+flags :
+    |ACCESS_FLAGS COLON; a = ADRESS ; f = FLAGS {Flags(a,String.split_on_char ' ' f)}
 
-super_class:
-    |SUPERCLASS; COLON; QUOTE; s = STRING; QUOTE {Descriptor(s)}
-    |_ {failwith "wrong super syntax"}
-    ;
+superclass : 
+    |SUPERCLASS COLON s = STRING {Descriptor(s)}
 
 interfaces:
-    |INTERFACES; DASH {Unknown}
-    |_ {failwith "wrong interfaces syntax"}
-    ;
+    |INTERFACES DASH l=list(interf) {l}
 
-static_fields: 
-    |STATIC_FIELDS; DASH; f = list(fields) {f}
-    |_ {failwith "wrong static syntax"}
-    ;
+interf:
+    |ID COLON s=STRING {Interface(s)}
 
-instance_fields: 
-    |INSTANCE_FIELDS; DASH; f = list(fields) {f}
-    |_ {failwith "wrong instance syntax"}
-    ;
+static :
+    |STATIC DASH l = list(field) {l}
 
-direct_methods: 
-    |DIRECT_METHODS; DASH; m= list(methods) {f}
-    |_ {failwith "wrong direct syntax"}
-    ;
-
-virtual_methods: 
-    |VIRTUAL_METHODS; DASH; m= list(methods) {f}
-    |_ {failwith "wrong virtual syntax"}
-    ;
-
-source_file_idx:
-    |SOURCE_FILE_IDX; COLON; INT; L_BRACKET; STRING; R_BRACKET {Unknown}
-    |_ {failwith "wrong sourcefile syntax"}
-    ;
-
-fields: 
-    |SHARP; INT; COLON; L_BRACKET; STRING; R_BRACKET; 
-    NAME; COLON; QUOTE; name = STRING;  QUOTE; 
-    TYPE; COLON; QUOTE; t = STRING; QUOTE; 
-    ACCESS; COLON; a = access; 
-    VALUE; COLON; i = INT 
-    {{
-        name = name; 
-        type_value = t; 
-        access = a;
-        value = i
-    }}
-    |_ {failwith "wrong fields syntax"}
-    ;
-
-methods: 
-    |SHARP; INT; COLON; L_BRACKET; STRING; R_BRACKET; 
-    NAME; COLON; QUOTE; name = STRING;  QUOTE; 
-    TYPE; COLON; QUOTE; t = STRING; QUOTE; 
-    ACCESS; COLON; a = access; 
-    c = code
-    {{
-        name = name; 
-        type_value = t; 
-        access = a;
-        code = c
-    }}
-    |_ {failwith "wrong methods syntax"}
-    ;
-
-code: 
-    |CODE; COLON; NONE {Empty_code}
-    |CODE; DASH; 
-    REGISTERS; COLON; r = INT; 
-    INS; COLON; ins = INT; 
-    OUTS; COLON; outs = INT; 
-    INSNS_SIZE; COLON; size = STRING; 
-    inst = list(instruction) 
-    {Code({
-        registers = int; 
-        ins = ins; 
-        ous = outs; 
-        insns_size = size; 
-        instructions = inst
+field: 
+    |ID COLON l = LOCATION NAME COLON n=STRING
+    TYPE COLON t=STRING ACCESS COLON a=ADRESS f=FLAGS
+    VALUE COLON v=value {Field({
+        interface = Interface(l);
+        name = n;
+        type_name = t;
+        access =  Flags(a,String.split_on_char ' ' f) ;
+        value = v
     })}
-    |_ {failwith "wrong code syntax"}
-    ;
+    |ID COLON l = LOCATION NAME COLON n=STRING
+    TYPE COLON t=STRING ACCESS COLON a=ADRESS f=FLAGS {Field({
+        interface = Interface(l);
+        name = n;
+        type_name = t;
+        access =  Flags(a,String.split_on_char ' ' f) ;
+        value = Value_int(0)
+    })}
 
-instruction: 
-    |i = INST {Inst(i)}
-    |_ {failwith "wrong instruction syntax"}
+value:
+    |i=INT {Value_int(i)}
+    |s=STRING {Value_string(s)}
+    |s=SCI_NUMBER {Value_Sci(s)}
+    |f=FLOAT {Value_float(f)}
+    |b=BOOL {Value_bool(b)}
+    |n=BIG_INT {Value_Big_int(n)}
+
+instance: 
+    |INSTANCE DASH l=list(field) {l}
+
+direct:
+    |DIRECT DASH l = list(methode) {l}
+
+virtual_m:
+    |VIRTUAL DASH l= list(methode) {l}
+
+methode:
+    |ID COLON l = LOCATION NAME COLON n=STRING
+    TYPE COLON t=STRING ACCESS COLON a=ADRESS f=FLAGS c=code {Method({
+        interface = Interface(l);
+        name = n;
+        type_name = t;
+        access =  Flags(a,String.split_on_char ' ' f) ;
+        code = c
+    })}
+
+code:
+    |CODE COLON NONE {Empty_code}
+    |CODE DASH 
+    REGISTERS COLON r=INT INS COLON i=INT OUTS COLON o=INT INSNS_SIZE COLON s=SIZE 
+    l=list(instructions) CODE_END {Code({
+        registers=r;
+        ins=i;
+        outs= o;
+        insns_size = s;
+        instructions = l
+    })}
+
+instructions:
+    |i=INSTR {Inst(i)}
+
+source_file:
+    |SOURCE_FILE_IDX COLON SOURCE {Unknown}

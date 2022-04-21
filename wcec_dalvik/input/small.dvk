@@ -1,4 +1,5 @@
-
+Processing 'classes.dex'...
+Opened 'classes.dex', DEX version '035'
 Class #1            -
   Class descriptor  : 'Landroid/support/v4/accessibilityservice/AccessibilityServiceInfoCompat;'
   Access flags      : 0x0001 (PUBLIC)

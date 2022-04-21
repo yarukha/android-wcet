@@ -12,10 +12,10 @@ let parse_with_errors lexbuf =
   |Dvkparser.Error ->
     Printf.fprintf stderr "%a: syntax error\n" print_position lexbuf;
     exit (-1)
-  
 
 let prog lb = 
   match parse_with_errors lb with 
   |Some(p)->p 
   |None-> 
     failwith "empty file"
+  
