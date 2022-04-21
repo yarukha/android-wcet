@@ -4,8 +4,11 @@
 
     exception SyntaxError of string
 
-    let print msg = (Printf.printf "%s " msg)
-    let print_nl msg = (Printf.printf "%s\n" msg)
+    let printing=false
+
+    let print msg = if printing then  (Printf.printf "%s " msg) else ()
+
+    let print_nl msg = if printing then (Printf.printf "%s\n" msg) else ()
 
 
     let catch_int_of_string s = 

@@ -40,7 +40,18 @@ program:
 
 classe: 
     |CLASS DASH 
-    descriptor flags superclass interfaces static instance direct virtual_m source_file{Empty_class}
+    d=descriptor f=flags super=superclass i=interfaces s=static
+    inst=instance direct=direct virt=virtual_m source=source_file{C({
+        descriptor = d;
+        access_flags=f;
+        superclass=super;
+        interfaces=i;
+        static_fields=s;
+        instance_fields=inst;
+        direct_methods= direct;
+        virtual_methods = virt;
+        source_file_idx=source
+    })}
 
 descriptor:
     |DESCRIPTOR COLON s = STRING {Descriptor(s)}
