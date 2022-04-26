@@ -19,7 +19,8 @@ let pp_program out p =
     |Value_bool(b)->print(string_of_bool b) 
   in
   let pp_instruction i = match i with 
-  |Inst(s)->print s
+  |Name(s)->print_nl s
+  |Sget->print_nl "Sget"
   |Unmatched-> print "unmatched instruction"
   in
   
@@ -38,7 +39,7 @@ let pp_program out p =
     tab ();print "ins: "; print_i c.ins; nl ();
     tab ();print "outs: "; print_i c.outs; nl ();
     tab ();print "insns size: "; print c.insns_size; nl () ;
-    tab ();List.iter pp_instruction c.instructions;
+    ();List.iter pp_instruction c.instructions;
   in 
   
   let pp_type_method x = match x with Empty_method -> nl ();
@@ -47,7 +48,7 @@ let pp_program out p =
     tab ();tab ();print "name: ";print_nl m.name;
     tab ();tab ();print "type: "; print_nl m.type_name ;
     tab ();tab ();print "access: "; pp_flags m.access; nl ();
-    tab ();tab ();print "code: "; pp_type_code m.code; nl ();
+    tab ();tab ();print "code: ";nl (); pp_type_code m.code;
   in
 
   let pp_type_class x = match x with |Empty_class -> nl ();

@@ -1,4 +1,6 @@
 open Lexing
+
+
 let print_position outx lb =
   let pos = lb.lex_curr_p in
   Printf.fprintf outx "%s:%d:%d" pos.pos_fname
@@ -8,6 +10,9 @@ let parse_with_errors lexbuf =
   try Dvkparser.program Dvklexer.token lexbuf with 
   |Dvklexer.SyntaxError msg ->
     Printf.fprintf stderr "%a: %s\n" print_position lexbuf msg;
+    None
+  |Dvk.UnknownInstruction msg-> 
+    Printf.fprintf stderr "%a:\nUnknown instruction: %s\n" print_position lexbuf msg;
     None
   |Dvkparser.Error ->
     Printf.fprintf stderr "%a: syntax error\n" print_position lexbuf;

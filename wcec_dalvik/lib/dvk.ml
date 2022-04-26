@@ -1,3 +1,20 @@
+exception UnknownInstruction of string
+
+
+type instruction = 
+  Name of string
+  |Sget
+  |Unmatched
+
+
+let catch_instruction i = 
+    let l = String.split_on_char ' ' i in 
+    let instr = List.hd l and _ = List.tl l in 
+    match instr with 
+    |"sget" -> Sget
+    |instr when instr.[0]= '[' -> Name(instr)
+    |_ -> raise(UnknownInstruction(instr))
+
 type class_descriptor =  Descriptor of string
 type flags = Flags of int * (string list) 
 type undefined_type = Unknown
@@ -8,9 +25,7 @@ type value =
   |Value_Sci of string|Value_float of float
   |Value_bool of bool |Value_Big_int of string
 
-type instruction = 
-  Inst of string 
-  |Unmatched
+
 
 type position = Pos of string
 type type_field = Empty_field |Field of {

@@ -1,6 +1,8 @@
 %{
-    open Dvk
     
+    open Dvk
+
+    exception UnknownInstruction of string
 %}
 %token HEADER
 %token CLASS 
@@ -130,7 +132,7 @@ code:
     })}
 
 instructions:
-    |i=INSTR {Inst(i)}
+    |i=INSTR {try catch_instruction i with UnknownInstruction msg -> raise(UnknownInstruction(msg))}
 
 source_file:
     |SOURCE_FILE_IDX COLON SOURCE {Unknown}

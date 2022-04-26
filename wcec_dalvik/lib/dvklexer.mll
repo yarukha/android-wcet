@@ -17,7 +17,7 @@
 
     let remove_ext s = 
         let n = String.length s in 
-        String.sub s 1 (n-2)
+        try String.sub s 1 (n-2) with |_-> raise (SyntaxError ("error removing parenthesis or quote")) 
 }
 
 let nl = ['\n']
@@ -30,11 +30,14 @@ let hex_digit = digit | ['a'-'f']
 let hex_number = "0x" hex_digit+
 let flag = ['A'-'Z' '_']+
 let flags = ['('] (flag ([' '] flag)*)?  [')'] 
-let nl_string = [^ '\n']+
+let nl_string = [^ '\n' ]+ 
 let quoted_string = (['''] [^ ''' '\n']+ [''']) | (['"'] [^ ''' '\n']* ['"'])
 let location = "(in " [^  '\n' ')']+ ";)"
 let size = decimal_number " 16-bit code units"
-let instruction = hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit [':'] nl_string
+let instruction_start = hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit [':']
+    [^ '|']* ['|']  (hex_digit hex_digit hex_digit hex_digit ": ")?
+let comment = "// " [^ '\n']*  
+
 let source_value = decimal_number " (" [^ '\n' ')']+ [')']
 let sci_number = ['-']? digit ['.'] digit+ ['e'] ['-' '+'] digit+ 
 let float= ['-']? digit+ ['.'] digit+
@@ -44,6 +47,7 @@ let float= ['-']? digit+ ['.'] digit+
 rule token = parse 
     |nl { new_line lexbuf; token lexbuf}
     |space+ {token lexbuf}
+    |comment {token lexbuf}
     |"Processing"{skip_header 1 lexbuf}
     |"Class " sharp_id as c{print c ;CLASS}
     |"Class descriptor" {print "DESCRIPTOR"; DESCRIPTOR}
@@ -71,6 +75,7 @@ rule token = parse
     |"true" {print "TRUE"; BOOL(true)}
     |['-'] {print_nl "DASH"; DASH}
     |[':'] {print "COLON"; COLON}
+    |instruction_start {let s = lex_instruction lexbuf in print_nl s; INSTR(s)}
     |quoted_string as s {print_nl (remove_ext s); STRING(remove_ext s)}
     |hex_number as h {print h; ADRESS(int_of_string h)}
     |signed_number as d {print_nl d; catch_int_of_string d}
@@ -78,19 +83,32 @@ rule token = parse
     |sharp_id as s{print s;ID}
     |location as l {print_nl (remove_ext l); LOCATION(remove_ext l)}
     |size as s {print_nl s; SIZE(s)}
-    |instruction as i {print_nl i;INSTR(i)}
     |source_value as s {print_nl s; SOURCE(s)}
     |float as f {print_nl f;FLOAT(float_of_string f)}
     |sci_number as s {print_nl s; SCI_NUMBER(s)}
     |eof {EOF}
-    |_ {failwith "unmatched string"}
+    |_ {raise( SyntaxError("unmatched string"))}
 
 
 and skip_header i = parse 
     |nl_string {skip_header i lexbuf}
     |nl {new_line lexbuf; if i = 0 then (print_nl "HEADER";HEADER) else skip_header (i-1) lexbuf}
+    |_ {raise (SyntaxError("wrong header"))}
 
 and skip_code_end = parse
     |nl_string {skip_code_end lexbuf}
     |nl {new_line lexbuf;skip_code_end lexbuf}
     |nl nl {new_line lexbuf; new_line lexbuf; print_nl "CODE_END";CODE_END}
+    |_ {raise (SyntaxError("wrong skip code end"))}
+
+and lex_instruction = parse 
+    |['"']  {let x = lex_quote lexbuf in  "\""^x}
+    |['\n'] {new_line lexbuf; ""}
+    |[^ '\n' '"']* as s {let x = lex_instruction lexbuf in s^x}
+    |_ {raise (SyntaxError("wrong instruction lexing"))}
+
+and lex_quote = parse
+    |['\n'] {new_line lexbuf; let x = lex_quote lexbuf in "\n"^x }
+    |['"'] {let x = lex_instruction lexbuf in "\""^x}
+    |[^ '\n' '"']* as s {let x = lex_quote lexbuf in s^x}
+    |_ {raise (SyntaxError("unfinished quote"))}
