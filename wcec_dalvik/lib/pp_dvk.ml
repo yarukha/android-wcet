@@ -19,10 +19,14 @@ let pp_program out p =
     |Value_bool(b)->print(string_of_bool b) 
   in
   let pp_instruction i = match i with 
-  |Name(s)->print_nl s
-  |Sget->print_nl "Sget"
-  |Unmatched-> print "unmatched instruction"
-  in
+  |Undefined -> print "undefined instruction"
+  |Name(x) -> print x
+  |Op0(_)-> print "op0"
+  |Op1(_)-> print "op1"
+  |Op2(_)-> print "op2"
+  |Op3(_)-> print "op3"
+  |Weird(_)-> print "weird"
+in
   
   let pp_type_field x = match x with |Empty_field -> nl ()
   |Field(f)->
