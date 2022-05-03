@@ -14,6 +14,9 @@ let parse_with_errors lexbuf =
   |Dvk.UnknownInstruction msg-> 
     Printf.fprintf stderr "%a:\nUnknown instruction: %s\n" print_position lexbuf msg;
     None
+  |Dvk.NotTranslated msg-> 
+    Printf.fprintf stderr "%a:\nNot translated: %s\n" print_position lexbuf msg;
+    None
   |Dvkparser.Error ->
     Printf.fprintf stderr "%a: syntax error\n" print_position lexbuf;
     exit (-1)

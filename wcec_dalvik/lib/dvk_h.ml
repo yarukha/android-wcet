@@ -1,0 +1,1 @@
+type operator = Dvk.operator

@@ -1,16 +1,19 @@
 exception UnknownInstruction of string
+exception NotTranslated of string
 
 type data_type = 
-  |Unmarked| Wide |Boolean |Byte |Char |Short 
+  |Empty| Wide |Boolean |Byte |Char |Short 
   |Int |Long |Float |Double |Object |String |Class
 type param = 
-  |From16 |High16 |X16 |X32 |X2Addr |Lit16 |Lit8 |Empty
-type args = Empty
+  |From16 |High16 |X4 |X16 |X32 |X2Addr |Lit16 |Lit8 |Jumbo |Empty
+type args = string list
 type op0 = 
   |Nop |ReturnVoid
 type op1 = 
-  |MoveResult |MoveResultWide |MoveResultObject |MoveException
-  |Return |ReturnWide |ReturnObject
+  |Move of data_type
+  |MoveResult of data_type
+  |MoveException
+  |Return of data_type
   |MoniterEnter |MoniterExit
   |Throw
   |Goto
@@ -29,7 +32,7 @@ type arithmetics =
 type op3 = 
   |InstanceOf 
   |NewArray
-  |CmplFloat |CmpgFloat |CmplDouble |CmphDouble |CmpLong
+  |Cmpl of data_type | Cmpg of data_type | CmpLong
   |IfEq |IfNe |IfLt |IfGe |IfGt |IfLe
   |IfEqz |IfNez |IfLtz |IfGez |IfGtz |IfLez
   |Aget of data_type |Aput of data_type
@@ -39,28 +42,21 @@ type op3 =
 
 (*need to double check how arrays are built*)
 type weirdaf = 
-  |FilledNewArray |FillArrayData |PackedSwitch |SparseSwitch |Invoke
+  |FilledNewArray |FillArrayData |PackedSwitch |SparseSwitch |Invoke |ArrayData
 
 
-type instruction = 
+type operator = 
   |Name of string
   |Undefined 
   |Op0 of op0 * param
-  |Op1 of op1 * param * args
-  |Op2 of op2 * param * args 
-  |Op3 of op3 * param * args
+  |Op1 of op1 * param 
+  |Op2 of op2 * param  
+  |Op3 of op3 * param 
   |Weird of weirdaf
+  |Wtf of weirdaf
 
+type instruction = operator * args
 
-let catch_instruction i = 
-    let l = String.split_on_char ' ' i in 
-    let instr = List.hd l and _ = List.tl l in 
-    match instr with 
-    |"if-lt"-> Op3(IfLt,Empty,Empty)
-    |"const/16" -> Op2(Const(Unmarked),X16,Empty)
-    |"sget" -> Op2(Sget(Unmarked),Empty,Empty)
-    |instr when instr.[0]= '[' -> Name(instr)
-    |_ -> raise(UnknownInstruction(instr))
 
 type class_descriptor =  Descriptor of string
 type flags = Flags of int * (string list) 

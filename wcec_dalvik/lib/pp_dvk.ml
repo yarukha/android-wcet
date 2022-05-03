@@ -18,7 +18,7 @@ let pp_program out p =
     |Value_float(f)->print (string_of_float f)
     |Value_bool(b)->print(string_of_bool b) 
   in
-  let pp_instruction i = match i with 
+  let pp_instruction i = let op,_ = i in match op with 
   |Undefined -> print "undefined instruction"
   |Name(x) -> print x
   |Op0(_)-> print "op0"
@@ -26,6 +26,7 @@ let pp_program out p =
   |Op2(_)-> print "op2"
   |Op3(_)-> print "op3"
   |Weird(_)-> print "weird"
+  |Wtf(_) -> print "wtf";
 in
   
   let pp_type_field x = match x with |Empty_field -> nl ()

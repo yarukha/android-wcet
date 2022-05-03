@@ -132,7 +132,7 @@ code:
     })}
 
 instructions:
-    |i=INSTR {try catch_instruction i with UnknownInstruction msg -> raise(UnknownInstruction(msg))}
+    |i=INSTR {try Catch_instructions.catch i with UnknownInstruction msg -> raise(UnknownInstruction(msg))}
 
 source_file:
     |SOURCE_FILE_IDX COLON SOURCE {Unknown}
