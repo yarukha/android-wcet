@@ -13,7 +13,8 @@ let hash_class c =
     List.iter (
       fun m -> (match m with 
       |Dvk.Empty_method -> ()
-      |Dvk.Method(m')-> Hashtbl.add h_virtual m'.name m)
+      |Dvk.Method(m')->
+        Hashtbl.add h_virtual m'.name m)
     ) c'.virtual_methods;
    C({
      descriptor = c'.descriptor; 

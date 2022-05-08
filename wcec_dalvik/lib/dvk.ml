@@ -7,6 +7,8 @@ type data_type =
 type param = 
   |From16 |High16 |X4 |X16 |X32 |X2Addr |Lit16 |Lit8 |Jumbo |Empty
 type args = string list
+type cmp = 
+  Eq | Ne |Lt |Ge |Gt |Le
 type op0 = 
   |Nop |ReturnVoid
 type op1 = 
@@ -25,16 +27,17 @@ type op2 =
   |NewInstance
   |Sget of data_type |Sput of data_type
   |Neg of data_type |Not of data_type | To of data_type * data_type
+  |Ifz of cmp
   |ConstMethodHandle 
   |ConstMethodType
 type arithmetics = 
   |Add |Sub |Mul |Div |Rem |And |Or |Xor |Shl |Shr |Ushr 
+
 type op3 = 
   |InstanceOf 
   |NewArray
   |Cmpl of data_type | Cmpg of data_type | CmpLong
-  |IfEq |IfNe |IfLt |IfGe |IfGt |IfLe
-  |IfEqz |IfNez |IfLtz |IfGez |IfGtz |IfLez
+  |If of cmp 
   |Aget of data_type |Aput of data_type
   |Iget of data_type |Iput of data_type
   |Arithm of  arithmetics *data_type 
