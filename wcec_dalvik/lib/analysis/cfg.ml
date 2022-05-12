@@ -1,8 +1,11 @@
-type instruction = Dvk_h.instruction
+type instruction = Dvk.instruction
 
 type method_descriptor = Descriptor of  string
-type next_instr = MethodCall of method_descriptor | Pc_incr of int 
-type type_method = (instruction * next_instr) list
+type next_instrs = {
+  method_calls : method_descriptor list;
+  pc_incr : int list
+}
+type type_method = (instruction * next_instrs) list
 
 let get_method m = let Descriptor(x)= m in x
 

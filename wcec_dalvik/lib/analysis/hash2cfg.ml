@@ -23,14 +23,15 @@ let descriptor_of_class_methods (cm:class_method) =
   let Dvk.Descriptor(c')= fst(cm) in 
   Descriptor(c' ^"." ^snd(cm)) 
 
-(******TODO    *********************)
+
 
 let transform_code c = match c with 
   Dvk.Empty_code -> []
-  |Dvk.Code(_)->
-    []
+  |Dvk.Code(c')->
+    List.map (
+      fun i -> (i, Next_instruction.next i)
+    ) c'.instructions
 
-(********************* NOT TODO **********************)
 let transform_methods c_name (m: Dvk.type_method) cfg = 
   match m with 
   |Dvk.Empty_method -> ()

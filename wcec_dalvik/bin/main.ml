@@ -38,7 +38,7 @@ let () =
   let c = open_in file in 
   let lb = Lexing.from_channel c in 
   Printf.printf "Input file: %s\n" file;
-  Printf.printf "Lexing done";
+  Printf.printf "Lexing done\n";
   let p = prog lb in
   Printf.printf "Parsing done\n";
   if pp then 
