@@ -1,5 +1,6 @@
 %{
     
+    open Analysis
     open Dvk
 
     exception UnknownInstruction of string

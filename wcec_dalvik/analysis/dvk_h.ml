@@ -1,6 +1,6 @@
 type operator = Dvk.operator
 type args = Dvk.args 
-type insctruction = operator * args
+type instruction = operator * args
 
 
 type class_descriptor = Dvk.class_descriptor

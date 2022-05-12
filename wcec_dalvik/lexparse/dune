@@ -1,6 +1,7 @@
 (library
- (name wcec_dalvik)
- (libraries fix apron sawja))
+ (name lexparse)
+ (libraries analysis))
+
 
 (menhir
   (modules dvkparser))
