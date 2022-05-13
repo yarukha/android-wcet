@@ -5,6 +5,13 @@
     exception SyntaxError of string
 
     let printing=false
+    let print_position lb =
+        let pos = lb.lex_curr_p in
+        Printf.printf "%s:%d:%d" pos.pos_fname
+            pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+
+
+    let print_anyway msg = Printf.printf "%s " msg
 
     let print msg = if printing then  (Printf.printf "%s " msg) else ()
 
@@ -31,7 +38,7 @@ let hex_number = "0x" hex_digit+
 let flag = ['A'-'Z' '_']+
 let flags = ['('] (flag ([' '] flag)*)?  [')'] 
 let nl_string = [^ '\n' ]+ 
-let quoted_string = (['''] [^ ''' '\n']+ [''']) | (['"'] [^ ''' '\n']* ['"'])
+let quoted_string = (['''] [^ ''' '\n']+ [''']) | (['"'] [^ '\n']* ['"'])
 let location = "(in " [^  '\n' ')']+ ";)"
 let size = decimal_number " 16-bit code units"
 let instruction_start = hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit [':']
@@ -70,6 +77,7 @@ rule token = parse
     |"catches" {skip_code_end lexbuf}
     |"source_file_idx" {print "SOURCE_FILE_IDX";SOURCE_FILE_IDX}
     |"(none)" {print "NONE";NONE}
+    |"(unknown)" {print "UNKNOWN"; UNKNOWN}
     |"null" {print "NULL";INT(0)}
     |"false" {print "FALSE";BOOL(false)}
     |"true" {print "TRUE"; BOOL(true)}
@@ -87,7 +95,7 @@ rule token = parse
     |float as f {print_nl f;FLOAT(float_of_string f)}
     |sci_number as s {print_nl s; SCI_NUMBER(s)}
     |eof {EOF}
-    |_ {raise( SyntaxError("unmatched string"))}
+    |_ {raise( SyntaxError("unmatched string:"))}
 
 
 and skip_header i = parse 
@@ -102,13 +110,13 @@ and skip_code_end = parse
     |_ {raise (SyntaxError("wrong skip code end"))}
 
 and lex_instruction = parse 
-    |['"']  {let x = lex_quote lexbuf in  "\""^x}
+    |['"']  { let x = lex_quote lexbuf in  "\""^x}
     |['\n'] {new_line lexbuf; ""}
     |[^ '\n' '"']* as s {let x = lex_instruction lexbuf in s^x}
     |_ {raise (SyntaxError("wrong instruction lexing"))}
 
 and lex_quote = parse
-    |['\n'] {new_line lexbuf; let x = lex_quote lexbuf in "\n"^x }
+    |['\n'] { new_line lexbuf; let x = lex_quote lexbuf in "\n"^x }
     |['"'] {let x = lex_instruction lexbuf in "\""^x}
     |[^ '\n' '"']* as s {let x = lex_quote lexbuf in s^x}
     |_ {raise (SyntaxError("unfinished quote"))}

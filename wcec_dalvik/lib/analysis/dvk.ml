@@ -5,7 +5,7 @@ type data_type =
   |Empty| Wide |Boolean |Byte |Char |Short 
   |Int |Long |Float |Double |Object |String |Class
 type param = 
-  |From16 |High16 |X4 |X16 |X32 |X2Addr |Lit16 |Lit8 |Jumbo |Empty
+  |From16 |High16 |X4 |X16 |X32 |X2Addr |Lit16 |Lit8 |Jumbo | Range| Empty
 type args = string list
 type cmp = 
   Eq | Ne |Lt |Ge |Gt |Le
@@ -43,9 +43,14 @@ type op3 =
   |Arithm of  arithmetics *data_type 
 
 
+type invoke_type = 
+  |Virtual |Super |Direct |Static |Interface |Polymorphic |Custom
+
 (*need to double check how arrays are built*)
-type weirdaf = 
-  |FilledNewArray |FillArrayData |PackedSwitch |SparseSwitch |Invoke |ArrayData
+type opn = 
+  |FilledNewArray |FillArrayData |Invoke of invoke_type |ArrayData
+  |PackedSwitch |SparseSwitch 
+  |PackedSwitchData |SparseSwitchData 
 
 
 type operator = 
@@ -55,8 +60,7 @@ type operator =
   |Op1 of op1 * param 
   |Op2 of op2 * param  
   |Op3 of op3 * param 
-  |Weird of weirdaf
-  |Wtf of weirdaf
+  |Opn of opn * param
 
 type instruction = operator * args
 

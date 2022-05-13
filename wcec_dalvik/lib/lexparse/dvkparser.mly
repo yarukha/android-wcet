@@ -20,7 +20,7 @@
 %token <string> BIG_INT
 (*fields and methods tokens *)
 
-%token ID NAME TYPE ACCESS VALUE CODE 
+%token ID NAME TYPE ACCESS VALUE CODE UNKNOWN
 %token <string> LOCATION
 
 (*code tokens*)
@@ -137,3 +137,4 @@ instructions:
 
 source_file:
     |SOURCE_FILE_IDX COLON SOURCE {Unknown}
+    |SOURCE_FILE_IDX COLON INT UNKNOWN {Unknown}

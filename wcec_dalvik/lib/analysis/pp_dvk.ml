@@ -25,8 +25,7 @@ let pp_program out p =
   |Op1(_)-> print "op1"
   |Op2(_)-> print "op2"
   |Op3(_)-> print "op3"
-  |Weird(_)-> print "weird"
-  |Wtf(_) -> print "wtf";
+  |Opn(_)-> print "opn"
 in
   
   let pp_type_field x = match x with |Empty_field -> nl ()

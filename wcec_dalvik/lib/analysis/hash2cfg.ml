@@ -1,5 +1,4 @@
 open Cfg
-type class_method = Dvk.class_descriptor * string
 
 let methods_number p = 
   match p with 
@@ -13,15 +12,6 @@ let methods_number p =
     ) hp;
   Printf.printf "methods_number: %i\n" !n;
   !n
-
-let class_methods_of_string s :class_method= 
-  let m = Filename.extension s and 
-  c = Filename.chop_extension s in 
-  Dvk.Descriptor(c),m
-
-let descriptor_of_class_methods (cm:class_method) = 
-  let Dvk.Descriptor(c')= fst(cm) in 
-  Descriptor(c' ^"." ^snd(cm)) 
 
 
 
@@ -37,7 +27,7 @@ let transform_methods c_name (m: Dvk.type_method) cfg =
   |Dvk.Empty_method -> ()
   |Dvk.Method(m')->
     let new_m = transform_code m'.code in 
-    Hashtbl.add cfg (descriptor_of_class_methods (c_name,m'.name)) new_m
+    Hashtbl.add cfg (c_name,m'.name) new_m
 
 
 let transform_class c cfg = 
