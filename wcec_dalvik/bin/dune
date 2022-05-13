@@ -1,4 +1,4 @@
 (executable
- (public_name wcec_dalvik)
+ (public_name wcec)
  (name main)
  (libraries analysis lexparse))
