@@ -1,8 +1,8 @@
 type instruction = Dvk.instruction
 
-type block_pos = string
+type block_pos = int
 type block = {
-  id : int;
+  pos : block_pos;
   instructions : instruction list;
   next : block_pos list; 
 }
