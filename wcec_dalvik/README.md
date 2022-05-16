@@ -5,7 +5,11 @@ interfaces might be a list rather than just one element
 
 need to test and expand using other dalvik examples
 
-ATM need to know successor list of each instructions (see lib/analysis/next_instruction.ml)
-need to keep improving lexer in order to handle multi line string declarations
+need to handle throws and double check each instruction potential branching in lib/analysis/hash2cfg.ml
 
-Parser DOESNT WORK for big files, need to rethink dvk structure to be lighter
+
+dangerous instructions: move-exception (not sure about this one), switches 
+switches are ignored for now
+
+
+The lexer cannot deal with odd number of " in strings, need to MANUALLY remove all of them for now

@@ -1,4 +1,4 @@
-open Cfg
+
 
 let methods_number p = 
   match p with 
@@ -10,44 +10,63 @@ let methods_number p =
       |Dvk_h.Empty_class -> ()
       |Dvk_h.C(c') -> n := !n + Hashtbl.length c'.direct_methods + Hashtbl.length c'.virtual_methods
     ) hp;
-  Printf.printf "methods_number: %i\n" !n;
+  Printf.printf "Methods_number: %i\n" !n;
   !n
 
+let get_position_of_string s = 
+  int_of_string ("0x"^s)
 
 
-let transform_code c = match c with 
-  Dvk.Empty_code -> []
-  |Dvk.Code(c')->
-    List.map (
-      fun i -> (i, Next_instruction.next i)
-    ) c'.instructions
 
-let transform_methods c_name (m: Dvk.type_method) cfg = 
-  match m with 
-  |Dvk.Empty_method -> ()
-  |Dvk.Method(m')->
-    let new_m = transform_code m'.code in 
-    Hashtbl.add cfg (c_name,m'.name) new_m
+type branching = 
+  |Return | If of int |Goto of int | Invoke of string |None
+
+let branching_value (i:Dvk.instruction) =
+  match i.op with 
+  |Dvk.Undefined-> None
+  |Dvk.Op0(op,_)->(
+    match op with 
+    |Dvk.ReturnVoid->Return
+    |_->None)
+  |Dvk.Op1(op,_)-> (
+    match op with 
+    |Dvk.Return(_)->Return
+    |Dvk.Goto -> Goto(get_position_of_string (List.hd i.args))
+    |_->None)
+  |Dvk.Op2(op,_)-> (
+    match op with
+    |Dvk.Ifz(_)->If(get_position_of_string (List.nth i.args 1))
+    |_ -> None)
+  |Dvk.Op3(op,_)-> (
+    match op with 
+    |Dvk.If(_)->If(get_position_of_string (List.nth i.args 2))
+    |_->None)
+  |Dvk.Opn(op,_)->(
+    match op with 
+    (*very cheeky trick: the method name is located before "//" and "method@" in the list of args*)
+    |Dvk.Invoke(_)->let n = List.length i.args in Invoke(List.nth i.args (n-3)) 
+    |_->None)
+
+(*
+module B = Set.Make(Int)
 
 
-let transform_class c cfg = 
+let transform_code c name = 
   match c with 
-  |Dvk_h.Empty_class -> ()
-  |Dvk_h.C(c') -> 
-    Hashtbl.iter (fun _ m -> transform_methods c'.descriptor m cfg ) c'.direct_methods;
-    Hashtbl.iter (fun _ m -> transform_methods c'.descriptor m cfg ) c'.virtual_methods 
-
-let transform_program p entry=   
-  let n = methods_number p in 
-  match p with 
-  |Dvk_h.Empty_prog -> Empty_prog
-  |Dvk_h.Prog(hp) -> 
-    let cfg = Hashtbl.create n in 
-    Hashtbl.iter (
-      fun _ c -> transform_class c cfg;
-    ) hp;
-    Prog({
-      entry = entry;
-      cfg = cfg
-    })
-
+  |Dvk.Empty_code -> Empty_method
+  |Dvk.Code(c') -> 
+    let h = Hashtbl.create 32 in
+    let block_pos = ref B.empty in
+    let return_pos = ref B.empty in
+    let add_block l pos = 
+      Hashtbl.add h pos l;
+      block_pos := B.add pos !block_pos in
+    let add_return pos = 
+      return_pos := B.add pos !return_pos
+    in  
+    let rec add_instructions (l:Dvk.instruction list) stack= 
+      match l with 
+      |[] -> stack
+      |x::q -> 
+        let y = x.op in 
+*)

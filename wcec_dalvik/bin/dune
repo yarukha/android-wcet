@@ -1,4 +1,5 @@
 (executable
  (public_name wcec)
  (name main)
+ (modes byte exe)
  (libraries analysis lexparse))

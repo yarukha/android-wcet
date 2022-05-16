@@ -54,7 +54,6 @@ type opn =
 
 
 type operator = 
-  |Name of string
   |Undefined 
   |Op0 of op0 * param
   |Op1 of op1 * param 
@@ -62,7 +61,11 @@ type operator =
   |Op3 of op3 * param 
   |Opn of opn * param
 
-type instruction = operator * args
+type instruction = {
+  pc_pos : int;
+  op : operator;
+  args : args
+}
 
 
 type class_descriptor =  Descriptor of string
@@ -77,7 +80,6 @@ type value =
 
 
 
-type position = Pos of string
 type type_field = Empty_field |Field of {
   interface : interface;
   name : string; 

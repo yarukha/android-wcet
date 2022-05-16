@@ -3,10 +3,12 @@ open Dvk
 
 let catch i = 
   let l = String.split_on_char ' ' i in 
-  let instr = List.hd l and args = List.tl l in 
+  let s = List.hd l in 
+  let pos = int_of_string ("0x"^(String.sub s 0 4)) in 
+  let q = List.tl l in 
+  let args = List.tl q and instr = List.hd q in 
   let op = 
   match instr with 
-  |instr when instr.[0]= '[' -> Name(instr)
   |"nop" -> Op0(Nop,Empty)
   |"move" -> Op1(Move(Empty),Empty)
   |"move/from16" -> Op1(Move(Empty),From16)
@@ -236,4 +238,8 @@ let catch i =
   |"const-method-type" -> raise(NotTranslated(instr))
   |"array-data" -> Opn(ArrayData,Empty)
   |_ -> raise(UnknownInstruction(instr))
-  in op,args 
+  in {
+    pc_pos = pos; 
+    op = op;
+    args = args
+  }

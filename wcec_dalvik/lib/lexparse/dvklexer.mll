@@ -7,11 +7,11 @@
     let printing=false
     let print_position lb =
         let pos = lb.lex_curr_p in
-        Printf.printf "%s:%d:%d" pos.pos_fname
+        Printf.printf "%s:%d:%d " pos.pos_fname
             pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
 
-
     let print_anyway msg = Printf.printf "%s " msg
+    let debug lb msg = print_position lb; print_anyway (msg^"\n")
 
     let print msg = if printing then  (Printf.printf "%s " msg) else ()
 
@@ -25,6 +25,7 @@
     let remove_ext s = 
         let n = String.length s in 
         try String.sub s 1 (n-2) with |_-> raise (SyntaxError ("error removing parenthesis or quote")) 
+
 }
 
 let nl = ['\n']
@@ -42,7 +43,9 @@ let quoted_string = (['''] [^ ''' '\n']+ [''']) | (['"'] [^ '\n']* ['"'])
 let location = "(in " [^  '\n' ')']+ ";)"
 let size = decimal_number " 16-bit code units"
 let instruction_start = hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit [':']
-    [^ '|']* ['|']  (hex_digit hex_digit hex_digit hex_digit ": ")?
+    [^ '|']* ['|'] 
+let instruction_name = hex_digit hex_digit hex_digit hex_digit hex_digit hex_digit [':']
+    [^ '|']* ['|'] ['['] [^ '\n']* ['\n'] 
 let comment = "// " [^ '\n']*  
 
 let source_value = decimal_number " (" [^ '\n' ')']+ [')']
@@ -83,6 +86,7 @@ rule token = parse
     |"true" {print "TRUE"; BOOL(true)}
     |['-'] {print_nl "DASH"; DASH}
     |[':'] {print "COLON"; COLON}
+    |instruction_name {print "INSTRUCTION_NAME"; new_line lexbuf; token lexbuf}
     |instruction_start {let s = lex_instruction lexbuf in print_nl s; INSTR(s)}
     |quoted_string as s {print_nl (remove_ext s); STRING(remove_ext s)}
     |hex_number as h {print h; ADRESS(int_of_string h)}
@@ -110,13 +114,14 @@ and skip_code_end = parse
     |_ {raise (SyntaxError("wrong skip code end"))}
 
 and lex_instruction = parse 
-    |['"']  { let x = lex_quote lexbuf in  "\""^x}
+    |['"']  {let x = lex_quote lexbuf in  "\""^x}
     |['\n'] {new_line lexbuf; ""}
     |[^ '\n' '"']* as s {let x = lex_instruction lexbuf in s^x}
     |_ {raise (SyntaxError("wrong instruction lexing"))}
 
 and lex_quote = parse
-    |['\n'] { new_line lexbuf; let x = lex_quote lexbuf in "\n"^x }
-    |['"'] {let x = lex_instruction lexbuf in "\""^x}
+    |['\n'] {new_line lexbuf; let x = lex_quote lexbuf in "\n"^x }
+    |['"'] { let x = lex_instruction lexbuf in "\""^x}
+    |"\"\"" { let x = lex_instruction lexbuf in "\"\""^x}
     |[^ '\n' '"']* as s {let x = lex_quote lexbuf in s^x}
     |_ {raise (SyntaxError("unfinished quote"))}
