@@ -114,14 +114,16 @@ and skip_code_end = parse
     |_ {raise (SyntaxError("wrong skip code end"))}
 
 and lex_instruction = parse 
-    |['"']  {let x = lex_quote lexbuf in  "\""^x}
+    |['"']  {lex_quote lexbuf; let x = lex_instruction lexbuf in  "\"string dummy\" "^x}
     |['\n'] {new_line lexbuf; ""}
     |[^ '\n' '"']* as s {let x = lex_instruction lexbuf in s^x}
     |_ {raise (SyntaxError("wrong instruction lexing"))}
 
 and lex_quote = parse
-    |['\n'] {new_line lexbuf; let x = lex_quote lexbuf in "\n"^x }
-    |['"'] { let x = lex_instruction lexbuf in "\""^x}
-    |"\"\"" { let x = lex_instruction lexbuf in "\"\""^x}
-    |[^ '\n' '"']* as s {let x = lex_quote lexbuf in s^x}
+    |['\n'] {new_line lexbuf; lex_quote lexbuf }
+    |['"'] {}
+    |"\"\"" {}
+    |"\"\"\"" {}
+    |"\":\"" {}
+    |[^ '\n' '"']* {lex_quote lexbuf}
     |_ {raise (SyntaxError("unfinished quote"))}
