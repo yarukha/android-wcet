@@ -13,3 +13,6 @@ switches are ignored for now
 
 
 The lexer cannot deal with odd number of " in strings, need to MANUALLY remove all of them for now
+
+CFG construction done; obviously needs to be revisited and double checked
+entry point needs to be defined

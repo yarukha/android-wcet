@@ -10,7 +10,6 @@ let methods_number p =
       |Dvk_h.Empty_class -> ()
       |Dvk_h.C(c') -> n := !n + Hashtbl.length c'.direct_methods + Hashtbl.length c'.virtual_methods
     ) hp;
-  Printf.printf "Methods_number: %i\n" !n;
   !n
 
 let get_position_of_string s = 
@@ -63,14 +62,16 @@ let block_spliting (block: block) pos =
   {pos = block.pos;instructions = l1;next=[pos]},{pos = pos; instructions = l2; next = block.next}
     
 
-let transform_code c= 
+let transform_code c name= 
   match c with 
   |Dvk.Empty_code -> Empty_method
   |Dvk.Code(c') -> 
     let h = Hashtbl.create 32 in
+    let invokes = Hashtbl.create 8 in 
     let block_pos = ref (B.singleton 0) in
     let return_pos = ref [] in
     let add_block (l:Dvk.instruction list) return next= 
+      if List.length l = 0 then () else 
       let pos = (List.hd l).pc_pos in
         Hashtbl.add h pos {pos=pos;instructions=l;next=next};
         block_pos := B.add pos !block_pos;
@@ -94,8 +95,11 @@ let transform_code c=
         |Goto(pos)->
           add_block (t@[x]) false [pos];
           add_instructions q [];
-        |Invoke(_)->
-          failwith "invoke todo"
+        |Invoke(z)->
+          add_block t false [(List.hd l).pc_pos];
+          add_block [x] false [(List.hd q).pc_pos];
+          Hashtbl.add invokes ((List.hd q).pc_pos) (M_id(z));
+          add_instructions q [];
         in
     add_instructions c'.instructions [];
     (*we still need to make sure that every instruction branched by an if or goto
@@ -108,7 +112,48 @@ let transform_code c=
         Hashtbl.add h p_pos b1; Hashtbl.add h p b2
     ) !block_pos;
     Method {
+      name = M_id(name);
       entry = 0;
       cfg = h;
-      exit = !return_pos
+      exit = !return_pos;
+      invokes = invokes
     }
+
+let transform_method m (Dvk.Descriptor(c_name))= 
+  match m with 
+  |Dvk.Empty_method -> Empty_method
+  |Dvk.Method(m')->
+    transform_code m'.code ((c_name)^"."^(m'.name))
+
+
+
+let transform_program p = 
+  let add_m m h = 
+    match m with |Empty_method-> (); |Method(m') -> Hashtbl.add h m'.name m in
+  match p with 
+  |Dvk_h.Empty_prog -> Empty_cfg 
+  |Dvk_h.Prog(hp)-> 
+    let n = methods_number p in 
+    let icfg = Hashtbl.create n in 
+    Hashtbl.iter (
+      fun c_desc c -> match c with |Dvk_h.Empty_class -> ();
+      |C(c')->
+        Hashtbl.iter (
+          fun _ m -> let m' = transform_method m c_desc in 
+          add_m m' icfg)  c'.direct_methods;
+        Hashtbl.iter (
+          fun _ m -> let m' = transform_method m c_desc in 
+          add_m m' icfg)  c'.virtual_methods;
+    ) hp;
+  (*we still need to add the return arcs*)
+  let return_arcs = Hashtbl.create n in 
+  Hashtbl.iter (
+    fun invoke_id m -> match m with |Empty_method -> () 
+    |Method(m')->
+      Hashtbl.iter (fun pos invoked_id -> Hashtbl.add return_arcs invoked_id (invoke_id,pos)) m'.invokes;
+  ) icfg;
+  Icfg {
+    entry_method = M_id("");
+    cfgs = icfg;
+    return_arcs = return_arcs
+  }
