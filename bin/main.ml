@@ -13,6 +13,22 @@ let speclist =
 let anon_fun filename =
   input_files := filename::!input_files
 
+
+(*let id ic oc =
+  let i = Xmlm.make_input (`Channel ic) in
+  let o = Xmlm.make_output (`Channel oc) in
+  let rec pull i o depth =
+    Xmlm.output o (Xmlm.peek i);
+    match Xmlm.input i with
+    | `El_start _ -> pull i o (depth + 1)
+    | `El_end -> if depth = 1 then () else pull i o (depth - 1)
+    | `Data _ -> pull i o depth
+    | `Dtd _ -> assert false
+  in
+  Xmlm.output o (Xmlm.input i); (* `Dtd *)
+  pull i o 0;
+  if not (Xmlm.eoi i) then invalid_arg "document not well-formed"*)
+
 let () = 
   Arg.parse speclist anon_fun usage_msg;
   List.iter (fun file -> 
@@ -34,4 +50,4 @@ let () =
       let mult_r = Dbg_tools.multiple_returns_count cfg in 
       Printf.printf "Multiple returns number: %i\n" mult_r
     end;
-    print_newline ();) (List.rev !input_files)
+    print_newline ();)  (List.rev !input_files)
