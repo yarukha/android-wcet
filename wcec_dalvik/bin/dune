@@ -1,5 +1,5 @@
 (executable
- (public_name wcec)
+ (public_name wcec-dvk)
  (name main)
  (modes byte exe)
  (libraries analysis lexparse))
