@@ -1,10 +1,7 @@
-wcec_dalvik/_build/
-wcec_dalvik/truc
-wcec_dalvik/input/ytb1.dvk
-wcec_dalvik/out.txt
-wcec_dalvik/output
-wcec_dalvik/dvk.cdvk
-wcec_dalvik/lib/eheh
-wcec_dalvik/input/rdgn.dvk
-wcec_dalvik/input/rdgn_og.dvk
-wcec_dalvik/input/rdgn_clr.dvk
+_build/
+input/ytb1.dvk
+input/rdgn.dvk
+input/rdgn_clr.dvk
+input/big.dvk
+output
+wcec-dvk.opam
