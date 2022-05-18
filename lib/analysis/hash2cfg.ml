@@ -51,7 +51,7 @@ module B = Set.Make(Int)
 let previous_pos pos blocks = 
   B.find_last (fun b -> b< pos) blocks
 
-let block_spliting (block: block) pos = 
+let block_spliting block pos = 
   let rec foo (l:Dvk.instruction list) stack= 
     match l with 
     |[]->failwith "not found position in block spliting"
@@ -153,7 +153,6 @@ let transform_program p =
       Hashtbl.iter (fun pos invoked_id -> Hashtbl.add return_arcs invoked_id (invoke_id,pos)) m'.invokes;
   ) icfg;
   Icfg {
-    entry_method = M_id("");
     cfgs = icfg;
     return_arcs = return_arcs
   }
