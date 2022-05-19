@@ -1,16 +1,5 @@
 open Cfg
 
-let methods_number p = 
-  match p with 
-  |Dvk_h.Empty_prog -> 0
-  |Dvk_h.Prog(hp) ->
-    let n = ref 0 in 
-    Hashtbl.iter (
-      fun _ c -> match c with 
-      |Dvk_h.Empty_class -> ()
-      |Dvk_h.C(c') -> n := !n + Hashtbl.length c'.direct_methods + Hashtbl.length c'.virtual_methods
-    ) hp;
-  !n
 
 let get_position_of_string s = 
   int_of_string ("0x"^s)
@@ -135,31 +124,33 @@ let transform_method m (Dvk.Descriptor(c_name))=
 
 
 let transform_program p = 
-  let add_m m h = 
-    match m with |Empty_method-> (); |Method(m') -> Hashtbl.add h m'.name m in
+  let add_m h m = 
+    match m with |Empty_method -> ()|Method(m')->Hashtbl.add h m'.name m in
   match p with 
-  |Dvk_h.Empty_prog -> Empty_cfg 
-  |Dvk_h.Prog(hp)-> 
-    let n = methods_number p in 
-    let icfg = Hashtbl.create n in 
+  |Dvk.Empty_prog -> Empty_cfg
+  |Dvk.Prog(l)->
+    let n = List.length l in 
+    let h = Hashtbl.create (5*n) in
+    List.iter (
+      fun c -> match c with 
+      |Dvk.Empty_class-> ()
+      |Dvk.C(c')->
+        let c_desc=c'.descriptor in
+        List.iter (
+          fun m -> let m' = transform_method m c_desc in add_m h m'
+        ) c'.direct_methods;
+        List.iter (
+          fun m -> let m' = transform_method m c_desc in add_m h m'
+        ) c'.virtual_methods;
+    ) l ;
+    (*we still need to add the return arcs*)
+    let return_arcs = Hashtbl.create n in 
     Hashtbl.iter (
-      fun c_desc c -> match c with |Dvk_h.Empty_class -> ();
-      |C(c')->
-        Hashtbl.iter (
-          fun _ m -> let m' = transform_method m c_desc in 
-          add_m m' icfg)  c'.direct_methods;
-        Hashtbl.iter (
-          fun _ m -> let m' = transform_method m c_desc in 
-          add_m m' icfg)  c'.virtual_methods;
-    ) hp;
-  (*we still need to add the return arcs*)
-  let return_arcs = Hashtbl.create n in 
-  Hashtbl.iter (
-    fun invoke_id m -> match m with |Empty_method -> () 
-    |Method(m')->
-      Hashtbl.iter (fun pos invoked_id -> Hashtbl.add return_arcs invoked_id (invoke_id,pos)) m'.invokes;
-  ) icfg;
-  Icfg {
-    cfgs = icfg;
-    return_arcs = return_arcs
-  }
+      fun invoke_id m -> match m with |Empty_method -> () 
+      |Method(m')->
+        Hashtbl.iter (fun pos invoked_id -> Hashtbl.add return_arcs invoked_id (invoke_id,pos)) m'.invokes;
+    ) h;
+    Icfg {
+      cfgs = h;
+      return_arcs = return_arcs
+    }

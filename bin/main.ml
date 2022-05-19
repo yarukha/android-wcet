@@ -24,12 +24,7 @@ let () =
     let lb = Lexing.from_channel c in 
     let p = Loadprog.prog lb in
     Printf.printf "Lexing and Parsing done\n";
-    let hp = Hashdvk.hash_program p in 
-    Printf.printf "Hashing done\n";
-    let h_m_number = Hash2cfg.methods_number hp in
-    if !verbose then 
-    Printf.printf "Hashed methods number: %i\n" h_m_number;
-    let cfg = Hash2cfg.transform_program hp in 
+    let cfg = Dvk2cfg.transform_program p in 
     Printf.printf "CFG building done\n";
     let _ = Simplify_cfg.simplify_icfg cfg in 
     Printf.printf "CFG simplification done\n";
