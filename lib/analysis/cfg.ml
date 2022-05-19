@@ -18,8 +18,8 @@ type method_type = Empty_method | Method of {
 }
 
 type node_position = method_id * block_pos
-let pp_node_position (M_id(m_id),b_pos) = 
-  Printf.printf "%s #%i\n" m_id b_pos;
+let string_of_node_position (M_id(m_id),b_pos) = 
+  Printf.sprintf "%s #%i" m_id b_pos;
 
 (*we define a variant type for the cfg, in order to reuse this definition for the abstracted cfg*)
 (*the entry point is not defined for now*)

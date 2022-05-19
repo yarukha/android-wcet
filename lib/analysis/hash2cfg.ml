@@ -43,7 +43,12 @@ let branching_value (i:Dvk.instruction) =
   |Dvk.Opn(op,_)->(
     match op with 
     (*very cheeky trick: the method name is located before "//" and "method@" in the list of args*)
-    |Dvk.Invoke(_)->let n = List.length i.args in Invoke(List.nth i.args (n-3)) 
+    (*for now we ignore some invoke types and all the others multi op operators*)
+    |Dvk.Invoke(invoke_type)->begin
+      match invoke_type with 
+      |Dvk.Interface -> None 
+      |_ -> let n = List.length i.args in Invoke(List.nth i.args (n-3)) 
+    end
     |_->None)
 
 
@@ -123,7 +128,9 @@ let transform_method m (Dvk.Descriptor(c_name))=
   match m with 
   |Dvk.Empty_method -> Empty_method
   |Dvk.Method(m')->
-    transform_code m'.code ((c_name)^"."^(m'.name))
+    (* a method name also includes its type name*)
+    let m_name = ((c_name)^"."^(m'.name)^":"^(m'.type_name)) in
+    transform_code m'.code m_name
 
 
 

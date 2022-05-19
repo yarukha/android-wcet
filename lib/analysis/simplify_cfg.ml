@@ -19,9 +19,7 @@ let simplify_method m h =
     Hashtbl.iter (
       fun b_pos m_id -> 
         let node_pos = (m'.name,b_pos) in
-        match Hashtbl.find_opt h node_pos with 
-        |None -> Cfg.pp_node_position node_pos; failwith "eje"
-        |Some(Node(node_value,current_next)) ->
+        let Node(node_value,current_next) = Hashtbl.find h node_pos in
           Hashtbl.replace h node_pos (Node(node_value,(m_id,0)::current_next))
     ) m'.invokes
 
@@ -46,7 +44,9 @@ let simplify_icfg cfg =
       fun m_id node_pos -> 
         let return_method = Hashtbl.find_opt cfg'.cfgs m_id in 
         match return_method with 
-        |None ->Cfg.pp_node_position (m_id,0); failwith "iouo"
+        |None ->
+          let s = Cfg.string_of_node_position node_pos in 
+          Printf.printf "%s\n" s;
         |Some(return_method') -> Printf.printf "good\n";
           match return_method' with |Cfg.Empty_method -> ()
         |Cfg.Method(return) ->
