@@ -44,6 +44,8 @@ let () =
     Printf.printf "Hashed methods number: %i\n" h_m_number;
     let cfg = Hash2cfg.transform_program hp in 
     Printf.printf "CFG building done\n";
+    let _ = Simplify_cfg.simplify_icfg cfg in 
+    Printf.printf "CFG simplification done\n";
     if !verbose then begin
       let cfg_method_n =  Dbg_tools.cfg_method_number cfg in 
       Printf.printf "CFG methods number: %i\n" cfg_method_n;
