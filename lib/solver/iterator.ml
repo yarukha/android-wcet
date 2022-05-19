@@ -1,6 +1,7 @@
 open Analysis
 open Cfgood
 open Lattices
+open Abstractions
 
 module type Cfg_entry = sig
   type t
@@ -8,11 +9,6 @@ module type Cfg_entry = sig
   val cfg : t list cfg
 end
 
-module type Abstraction  = sig
-  type concrete
-  type abstract
-  val interpretation : concrete -> (abstract -> abstract)
-end
 
 
 module type Iterator = sig 
