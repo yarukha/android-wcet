@@ -1,5 +1,5 @@
-open Analysis
-open Lexparse
+(* open Analysis *)
+open Lexparsecfg
 
 
 let usage_msg = "wcec [-verbose] <file>"
@@ -15,7 +15,7 @@ let anon_fun filename =
 
 
 
-
+(*
 let () = 
   Arg.parse speclist anon_fun usage_msg;
     List.iter (fun file -> 
@@ -34,4 +34,15 @@ let () =
       let mult_r = Dbg_tools.multiple_returns_count cfg in 
       Printf.printf "Multiple returns number: %i\n" mult_r
     end;
-    print_newline ();)  (List.rev !input_files)
+    print_newline ();)  (List.rev !input_files)*)
+
+let () = 
+  Arg.parse speclist anon_fun usage_msg;
+    List.iter( fun file ->
+      let c = open_in file in 
+      Printf.printf "\nInput file: %s\n" file;
+      let lb = Lexing.from_channel c in 
+      let l = Loadcfg.cfg lb in 
+      Printf.printf "Lexparse done \n";
+      Printf.printf "methods number: %i\n" (List.length l);)
+      (List.rev !input_files)

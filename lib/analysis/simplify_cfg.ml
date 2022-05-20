@@ -46,8 +46,10 @@ let simplify_icfg cfg =
         match return_method with 
         |None ->
           let s = Cfg.string_of_node_position node_pos in 
-          Printf.printf "%s\n" s;
-        |Some(return_method') -> Printf.printf "good\n";
+          Printf.printf "WRONG: %s\n" s;
+        |Some(return_method') -> 
+          let s = Cfg.string_of_node_position node_pos in 
+          Printf.printf "GOOD: %s\n" s;
           match return_method' with |Cfg.Empty_method -> ()
         |Cfg.Method(return) ->
         List.iter (

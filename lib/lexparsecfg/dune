@@ -1,0 +1,9 @@
+(library
+ (name lexparsecfg)
+ (libraries cfg_analysis))
+
+
+(menhir
+  (modules cfgparser))
+
+(ocamllex cfglexer)

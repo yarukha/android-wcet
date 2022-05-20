@@ -99,7 +99,7 @@ rule token = parse
     |float as f {print_nl f;FLOAT(float_of_string f)}
     |sci_number as s {print_nl s; SCI_NUMBER(s)}
     |eof {EOF}
-    |_ {raise( SyntaxError("unmatched string:"))}
+    |_* as s {raise( SyntaxError("unmatched string: "^s))}
 
 
 and skip_header i = parse 
