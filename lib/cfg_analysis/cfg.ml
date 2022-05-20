@@ -3,6 +3,8 @@ type node_id = N_id of int
 type pc = Pc of int
 
 
+let pp_m (M_id(s)) = 
+  Printf.sprintf "%s" s
 
 type 'a nodes = (node_id * 'a ) list 
 type position = {

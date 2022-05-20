@@ -1,5 +1,6 @@
 (* open Analysis *)
 open Lexparsecfg
+open Cfg_analysis
 
 
 let usage_msg = "wcec [-verbose] <file>"
@@ -44,5 +45,13 @@ let () =
       let lb = Lexing.from_channel c in 
       let l = Loadcfg.cfg lb in 
       Printf.printf "Lexparse done \n";
-      Printf.printf "methods number: %i\n" (List.length l);)
+      Printf.printf "methods number: %i\n" (List.length l);
+      Printf.printf "not exception edges number: %i\n" 
+      (List.fold_left (fun i (_,dg) ->i + Cfg.(List.length dg.taken_edges + List.length dg.regular_edges)  ) 0 l);
+      let cfg = Simplifycfg.simplify l in 
+      Printf.printf "\ncfg simplification done (at least the easy part)\n";
+      Printf.printf "number of nodes: %i\n" (Hashtbl.length cfg) ;
+      Printf.printf "edges number: %i\n" (Hashtbl.fold (fun _ n i -> (i + List.length Scfg.(n.next)) ) cfg 0 );
+      Get_invokes.pp_called_meths cfg;
+      )
       (List.rev !input_files)
