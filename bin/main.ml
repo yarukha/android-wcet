@@ -39,6 +39,7 @@ let () =
 
 let () = 
   Arg.parse speclist anon_fun usage_msg;
+  let _ = 
     List.iter( fun file ->
       let c = open_in file in 
       Printf.printf "\nInput file: %s\n" file;
@@ -52,6 +53,7 @@ let () =
       Printf.printf "\ncfg simplification done (at least the easy part)\n";
       Printf.printf "number of nodes: %i\n" (Hashtbl.length cfg) ;
       Printf.printf "edges number: %i\n" (Hashtbl.fold (fun _ n i -> (i + List.length Scfg.(n.next)) ) cfg 0 );
-      Get_invokes.pp_called_meths cfg;
+      Dbg_tools.print_invokes cfg;
       )
-      (List.rev !input_files)
+      (List.rev !input_files) 
+    in ()

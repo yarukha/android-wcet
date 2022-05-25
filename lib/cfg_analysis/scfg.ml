@@ -14,3 +14,12 @@ type 'a node = {
 }
 
 type 'a cfg = (label, 'a node) Hashtbl.t 
+
+let label_to_string l = 
+  let Cfg.M_id(m_id) = l.method_id and Cfg.N_id(n_id)=l.node_id in 
+  Printf.sprintf "%s #%i" m_id n_id
+
+let iter (cfg: 'a cfg) f = 
+  Hashtbl.iter (
+    fun l n -> f l n.value  
+  ) cfg 

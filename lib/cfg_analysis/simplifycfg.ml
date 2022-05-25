@@ -30,3 +30,4 @@ let simplify (cfg:'a Cfg.cfg) =
   List.iter (h |> simplify_diagraph ) cfg;  
   h
 
+

@@ -1,6 +1,18 @@
 open Instructions
 
 
+
+let instr_to_string i = 
+  match i.op with 
+  |Undefined -> Printf.sprintf "undefined"
+  |Opn(Invoke(_),_) -> Printf.sprintf "invoke"
+  |Op0(_)->Printf.sprintf "_"
+  |Op1(_)->Printf.sprintf "_"
+  |Op2(_)->Printf.sprintf "_"
+  |Op3(_)->Printf.sprintf "_"
+  |Opn(_)->Printf.sprintf "_"
+
+
 let catch i = 
   let l = String.split_on_char ' ' i in 
   let q = List.tl l in 
@@ -242,6 +254,10 @@ let catch i =
     args = args
   }
 
+
+
+
+let number_instructions = 223
 
 let instruction_id i =
   match i with                      
