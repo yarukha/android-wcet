@@ -13,11 +13,10 @@ let instr_to_string i =
   |Opn(_)->Printf.sprintf "_"
 
 
+
 let catch i = 
   let l = String.split_on_char ' ' i in 
-  let q = List.tl l in 
-  let args = List.tl q and instr =  let x = List.hd q in 
-  if (String.ends_with ~suffix:"," x) then  String.sub x 0 (String.length x -1 ) else x in 
+  let instr =  List.hd l in 
   let op = 
   match instr with 
   |"nop" -> Op0(Nop,Empty)
@@ -131,13 +130,13 @@ let catch i =
   |"invoke-direct" -> Opn(Invoke(Direct),Empty)
   |"invoke-static" -> Opn(Invoke(Static),Empty)
   |"invoke-interface" -> Opn(Invoke(Interface),Empty)
-  |"invoke-virtual/range" -> Opn(Invoke(Virtual),Range)
-  |"invoke-super/range" -> Opn(Invoke(Super),Range)
-  |"invoke-direct/range" -> Opn(Invoke(Direct),Range)
-  |"invoke-static/range" -> Opn(Invoke(Static),Range)
-  |"invoke-interface/range" -> Opn(Invoke(Interface),Range)
+  |"invoke-virtual/range," -> Opn(Invoke(Virtual),Range)
+  |"invoke-super/range," -> Opn(Invoke(Super),Range)
+  |"invoke-direct/range," -> Opn(Invoke(Direct),Range)
+  |"invoke-static/range," -> Opn(Invoke(Static),Range)
+  |"invoke-interface/range," -> Opn(Invoke(Interface),Range)
   |"invoke-polymorphic"  -> Opn(Invoke(Polymorphic),Empty)
-  |"invoke-polymorphic/range" -> Opn(Invoke(Polymorphic),Range)
+  |"invoke-polymorphic/range," -> Opn(Invoke(Polymorphic),Range)
   |"invoke-custom" -> Opn(Invoke(Custom),Empty)
   |"invoke-custom/range" -> Opn(Invoke(Custom),Range)
   |"neg-int" -> Op2(Neg(Int),Empty)
@@ -249,11 +248,22 @@ let catch i =
   |"const-method-type" -> raise(NotTranslated(instr))
   |"array-data" -> Opn(ArrayData,Empty)
   |_ -> raise(UnknownInstruction(instr))
-  in {
+  in let args = match op with 
+  |Opn(Invoke(_),_)-> 
+    let buf = Buffer.create 20 in 
+    let add = ref false in 
+    String.iter (
+      fun c -> if !add && (c!='\\') then Buffer.add_char buf c; if ((c='}'&& not !add)) then add := true; if ((c='/')&& !add) then add := false
+    ) i;
+    let b = Buffer.contents buf in
+    let s =String.sub (b) 2 (String.length b -4 )in
+    [s]
+  |_ -> []
+  in
+  {
     op = op;
     args = args
   }
-
 
 
 

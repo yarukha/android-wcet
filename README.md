@@ -13,11 +13,6 @@ switches are ignored for now
 need to revisit how node names are defined, namely take care of virtual methods 
 for now we ignore some invocation types and all others multi operands operators
 
-the hashed dvk definition is probably useless now
-need to construct a dvk2cfg function to simplify things
-
-
-The lexer cannot deal with odd number of " in strings, need to MANUALLY remove all of them for now
-
+for now args are non empty except for invokes where the ony arg is the name of the method invoked
 
 entry point needs to be defined

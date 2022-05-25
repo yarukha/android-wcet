@@ -22,6 +22,8 @@ let space = [' ' '\t' '\r']
 let digit = ['0' - '9']
 let number = ['0'] | (['1'-'9'] digit*)
 let filename = "classes" number ".dex" |"classes.dex"
+let hexadigit= ['0'-'9'] | ['a'-'f']
+let adress = "0x" hexadigit+ [':']
 
 rule token = parse 
     |nl {print_nl "";new_line lexbuf; token lexbuf}
@@ -47,8 +49,8 @@ rule token = parse
     |"node" (number as n) {print ("node"^n) ;NODE(int_of_string n)}
     |"<p" (number as n) ['>'] {print ("p"^n);P(int_of_string n)}
     |":p" (number as n) {print ("p"^n); P(int_of_string n)}
-    |"/*" ([^ '/']* as m) "*/" {print m;METHOD_NAME(m)}
-    |"0x" {let buf = Buffer.create 20 in Buffer.add_string buf "0x";lex_instruction buf lexbuf}
+    |"/*" space ([^ '/']* as m)space  "*/" {print m;METHOD_NAME(m)}
+    |adress space  {let buf = Buffer.create 20 in lex_instruction buf lexbuf}
     |("[color=" [^ ']']+ ']') as i {print "INFO";SUBGRAPH_INFO(i)}
     |"shape" {print "shape";SHAPE}
     |"record" {print "record";RECORD}
