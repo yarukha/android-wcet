@@ -53,7 +53,7 @@ let () =
       Printf.printf "\ncfg simplification done (at least the easy part)\n";
       Printf.printf "number of nodes: %i\n" (Hashtbl.length cfg) ;
       Printf.printf "edges number: %i\n" (Hashtbl.fold (fun _ n i -> (i + List.length Scfg.(n.next)) ) cfg 0 );
-      Dbg_tools.print_link_invokes cfg;
+      Dbg_tools.found_invokes ~found:false cfg;
       )
       (List.rev !input_files) 
     in ()
