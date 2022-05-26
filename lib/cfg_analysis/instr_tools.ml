@@ -14,7 +14,7 @@ let instr_to_string i =
 
 
 
-let catch i = 
+let catch p i = 
   let l = String.split_on_char ' ' i in 
   let instr =  List.hd l in 
   let op = 
@@ -261,6 +261,7 @@ let catch i =
   |_ -> []
   in
   {
+    pc= Pc(p);
     op = op;
     args = args
   }

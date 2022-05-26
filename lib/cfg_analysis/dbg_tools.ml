@@ -21,7 +21,7 @@ let print_link_invokes cfg =
     fun _ x -> 
       List.iter (
         fun m -> 
-          match Hashtbl.find_opt cfg {Scfg.method_id = Cfg.M_id(m);Scfg.node_id = Cfg.N_id(0)} with
+          match Hashtbl.find_opt Scfg.(cfg.edges) {Scfg.method_id = Cfg.M_id(m);Scfg.node_id = Cfg.N_id(0)} with
           |None -> Printf.printf "NOT FOUND %s\n" m
           |Some(_)->Printf.printf "FOUND %s\n" m
       )(get_invoke x)
@@ -30,16 +30,16 @@ let print_link_invokes cfg =
 
 
 let found_invokes ?(found=true) cfg  = 
-  let l = ref [] in 
-  Scfg.iter (
-    fun _ x -> 
-      List.iter (
-        fun m -> 
-          match Hashtbl.find_opt cfg {Scfg.method_id = Cfg.M_id(m);Scfg.node_id = Cfg.N_id(0)} with
-          |None -> if not found then if not (List.mem m !l) then l:= m::!l
-          |Some(_)->if found then if not (List.mem m !l) then l:= m::!l
-      )(get_invoke x)
-  ) cfg;
+  let l = 
+  Scfg.fold (
+    fun l' _ x -> 
+      List.fold_left (
+        fun l'' m -> 
+          match Scfg.find_opt cfg {Scfg.method_id = Cfg.M_id(m);Scfg.node_id = Cfg.N_id(0)} with
+          |None -> if (not found)&& not (List.mem m l'') then m::l'' else l''
+          |Some(_)->if (found)&& not (List.mem m l'') then m::l'' else l''
+      ) l' (get_invoke x)
+  ) cfg [] in 
   let found_s = if found then "FOUND" else "NOT FOUND" in
-  List.iter (Printf.printf "%s %s\n" found_s) !l;
-  Printf.printf "\n%i method name have been %s in the cfg\n\n" (List.length !l) found_s;
+  List.iter (Printf.printf "%s %s\n" found_s) l;
+  Printf.printf "\n%i method name have been %s in the cfg\n\n" (List.length l) found_s;

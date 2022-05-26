@@ -62,7 +62,11 @@ type operator =
   |Op3 of op3 * param 
   |Opn of opn * param
 
+
+type pc = Pc of int
+
 type instruction = {
+  pc: pc;
   op : operator;
   args : args
 }

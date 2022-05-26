@@ -1,6 +1,6 @@
 type method_id = M_id of string
 type node_id = N_id of int
-type pc = Pc of int
+type pc = Instructions.pc
 
 
 let pp_m (M_id(s)) = 
@@ -25,7 +25,8 @@ type 'a digraph = {
 type 'a  cfg =  (method_id * 'a digraph)  list
 
 
-
+let merge a b :'a cfg = 
+  a@b
 
 
 

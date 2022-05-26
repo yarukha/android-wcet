@@ -59,7 +59,7 @@ label:
     |LABEL EQUAL QUOTE L_BRACKET l=list(instruction) QUOTE {l}
 
 instruction:
-    |P i=INSTRUCTION {Instr_tools.catch i}
+    |p=P i=INSTRUCTION {Instr_tools.catch p i}
 
 regular_edges:
     |SUBGRAPH REGULAR_EDGES sg =subgraph {sg}
