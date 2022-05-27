@@ -46,7 +46,7 @@ rule token = parse
     |['}'] {print "}";R_BRACKET}
     |['['] {print "[" ;L_SQR_BRACKET}
     |[']'] {print "]";R_SQR_BRACKET}
-    |"node" (number as n) {print ("node"^n) ;NODE(int_of_string n)}
+    |"node" (number as n) {print ("node"^n) ;NODE(n)}
     |"<p" (number as n) ['>'] {print ("p"^n);P(int_of_string n)}
     |":p" (number as n) {print ("p"^n); P(int_of_string n)}
     |"/*" space ([^ '/']* as m)space  "*/" {print m;METHOD_NAME(m)}

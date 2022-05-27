@@ -11,7 +11,7 @@
 %token SHARP COMA SEMI_COLON EQUAL QUOTE ARROW 
 %token L_BRACKET R_BRACKET L_SQR_BRACKET R_SQR_BRACKET
 
-%token <int> NODE
+%token <string> NODE
 %token <int> P
 %token <string> METHOD_NAME
 %token <string> INSTRUCTION

@@ -22,7 +22,7 @@ type 'a cfg = {
 
 let label_to_string l = 
   let Cfg.M_id(m_id) = l.method_id and Cfg.N_id(n_id)=l.node_id in 
-  Printf.sprintf "%s #%i" m_id n_id
+  Printf.sprintf "%s #%s" m_id n_id
 
 (**[Scfg.iter f cfg] applies [f] to all bindings in [cfg], [f] receives the label and the value of each node as first and second argument respectivly.*)
 let iter f (cfg: 'a cfg)  = 

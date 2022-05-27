@@ -1,5 +1,5 @@
 type method_id = M_id of string
-type node_id = N_id of int
+type node_id = N_id of string
 type pc = Instructions.pc
 
 

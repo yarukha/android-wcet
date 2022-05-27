@@ -6,11 +6,13 @@ let instr_to_string i =
   match i.op with 
   |Undefined -> Printf.sprintf "undefined"
   |Opn(Invoke(_),_) -> Printf.sprintf "invoke"
-  |Op0(_)->Printf.sprintf "_"
-  |Op1(_)->Printf.sprintf "_"
-  |Op2(_)->Printf.sprintf "_"
-  |Op3(_)->Printf.sprintf "_"
-  |Opn(_)->Printf.sprintf "_"
+  |Op0(ReturnVoid,_)->Printf.sprintf "returnvoid"
+  |Op1(Return(_),_)->Printf.sprintf "return"
+  |Op0(_)->Printf.sprintf "op0"
+  |Op1(_)->Printf.sprintf "op1"
+  |Op2(_)->Printf.sprintf "op2"
+  |Op3(_)->Printf.sprintf "op3"
+  |Opn(_)->Printf.sprintf "other opn"
 
 
 
