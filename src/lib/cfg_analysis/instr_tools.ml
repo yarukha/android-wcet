@@ -270,10 +270,10 @@ let catch p i =
 
 
 
-let number_instructions = 223
+let number_instructions = 224
 
 let instruction_id i =
-  match i with                      
+  match i.op with                      
   |Op0(Nop,Empty) -> 0                           
   |Op1(Move(Empty),Empty) -> 1
   |Op1(Move(Empty),From16) -> 2
@@ -388,8 +388,8 @@ let instruction_id i =
   |Opn(Invoke(Direct),Range) -> 111
   |Opn(Invoke(Static),Range) -> 112
   |Opn(Invoke(Interface),Range) -> 113
-  |Opn(Invoke(Polymorphic),Empty) ->1114
-  |Opn(Invoke(Polymorphic),Range) ->1115
+  |Opn(Invoke(Polymorphic),Empty) ->114
+  |Opn(Invoke(Polymorphic),Range) ->115
   |Opn(Invoke(Custom),Empty) -> 116
   |Opn(Invoke(Custom),Range) -> 117
   |Op2(Neg(Int),Empty) -> 118
@@ -473,11 +473,11 @@ let instruction_id i =
   |Op3(Arithm(Mul,Float),X2Addr) -> 196
   |Op3(Arithm(Div,Float),X2Addr) -> 197
   |Op3(Arithm(Rem,Float),X2Addr) -> 198
-  |Op3(Arithm(Add,Double),X2Addr) ->2199
-  |Op3(Arithm(Sub,Double),X2Addr) ->2200
-  |Op3(Arithm(Mul,Double),X2Addr) ->2201
-  |Op3(Arithm(Div,Double),X2Addr) ->2202
-  |Op3(Arithm(Rem,Double),X2Addr) ->2203
+  |Op3(Arithm(Add,Double),X2Addr) ->199
+  |Op3(Arithm(Sub,Double),X2Addr) ->200
+  |Op3(Arithm(Mul,Double),X2Addr) ->201
+  |Op3(Arithm(Div,Double),X2Addr) ->202
+  |Op3(Arithm(Rem,Double),X2Addr) ->203
   |Op3(Arithm(Add,Int),Lit16) -> 204
   |Op3(Arithm(Sub,Int),Lit16) -> 205
   |Op3(Arithm(Mul,Int),Lit16) -> 206

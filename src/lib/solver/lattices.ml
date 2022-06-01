@@ -22,7 +22,7 @@ module Product_Lattice (L1:SemiLattice) (L2:SemiLattice) :SemiLattice = struct
   let join x y = (L1.join (fst(x)) (fst(y)),L2.join (snd(x)) (snd(y)) )
 end
 
-module Make_MaxIntLattice (N : sig val n : int end) :SemiLattice= struct 
+module Make_MaxIntLattice (N : sig val n : int end) :SemiLattice with type t = int= struct 
   type t = int 
   let bottom = 0 
   let equal = (=) 

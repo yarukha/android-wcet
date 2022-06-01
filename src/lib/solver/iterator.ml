@@ -1,72 +1,79 @@
-open Analysis
-open Cfgood
+open Cfg_analysis
+open Icfg
 open Lattices
 open Abstractions
 
-module type Cfg_entry = sig
-  type t
-  val entry : node_position
-  val cfg : t list cfg
+module type Cfg = sig 
+  type t 
+  val cfg : t cfg
 end
-
-
 
 module type Iterator = sig 
-  type concrete
   type abstract 
-  val init_abstraction : unit -> abstract cfg
-  val interprete_list : concrete list -> (abstract -> abstract)
-  val list_join : abstract list -> abstract
-  val fixpoint : unit -> abstract cfg
+  type concrete
+
+  val join_list: abstract list -> abstract
+
+  (**create an abstract cfg, structurally equal to the concrete one, initialised with bottom*)
+  val init : concrete cfg -> abstract cfg
+
+  (**iterate on the abstract cfg and returns it, this modifies the input abstract cfg*)
+  val iterate : concrete cfg -> (abstract cfg -> abstract cfg)
+
+  (**return the list of the abstract values of final nodes*)
+  val final_abstract_values : abstract cfg -> abstract list
+
+  val final_value : abstract cfg -> abstract 
 end
 
 
 
-module MakeIterator (C: Cfg_entry) (A:SemiLattice) 
-(F: Abstraction with type concrete = C.t and type abstract = A.t) :Iterator = struct 
-  type concrete = C.t
-  type abstract = A.t
-  let init_abstraction () = 
-    match C.cfg with 
-    |Empty_cfg -> Empty_cfg
-    |Cfg(h)->
-      let n = Hashtbl.length h in 
-      let bot_h = Hashtbl.create n in 
-      Hashtbl.iter (
-        fun node_pos (Node(_,next)) -> 
-          Hashtbl.add bot_h node_pos (Node(A.bottom,next))
-      ) h; 
-      Cfg(bot_h)
-  let interprete_list l =
-    fun a_init -> List.fold_left (fun a c -> (F.interpretation c) a ) a_init l
+module MakeIterator (A:SemiLattice) (F:Abstraction with type abstract =A.t) : 
+  (Iterator with type abstract = F.abstract and type concrete = F.concrete) = struct
+  type abstract = F.abstract
+  type concrete = F.concrete 
 
-  let list_join l = 
-    List.fold_left (fun jointure a -> A.join jointure a ) A.bottom l
-  let fixpoint () = 
-    let concrete_h = match C.cfg with |Empty_cfg -> failwith "tried to get a fixpoint for an empty cfg" |Cfg(h')->h' in
-    match (init_abstraction ()) with 
-    |Empty_cfg -> Empty_cfg 
-    |Cfg(h) -> 
-      let get_predecessors node_pos = 
-        Hashtbl.fold (
-          fun current_pos (Node(_,next)) predecessors_list->
-            if List.mem node_pos next then current_pos::predecessors_list else predecessors_list 
-        ) h [] in 
-      let rec update_stack stack =
-        match stack with 
-        |[] -> ()
-        |x::q->  
-          let pred = get_predecessors x in 
-          let predecessors_a_value = 
-            list_join (List.map (fun p -> let Node(a,_) = Hashtbl.find h p in a) pred) in 
-          let Node(c_value,_) = Hashtbl.find concrete_h x in 
-          let Node(a_value,next) = Hashtbl.find h x in 
-          let new_a_value = (interprete_list c_value) predecessors_a_value in 
-          if A.equal new_a_value a_value then 
-            update_stack q 
-          else
-            update_stack (next@q) 
-          in 
-      update_stack [C.entry];
-      Cfg(h)
+  let join_list l = 
+    match l with 
+    |[]-> A.bottom
+    |x::q-> List.fold_left A.join x q
+  let init cfg = 
+    let n = Hashtbl.length cfg in 
+    let h = Hashtbl.create n in 
+    Hashtbl.iter (
+      fun n_id x -> Hashtbl.add h n_id {value = A.bottom;next = x.next}
+    ) cfg;
+    h
+  let iterate ccfg acfg = 
+    Printf.printf "number of nodes: %i\n" (Icfg.node_numbers ccfg);
+    let rec foo stack = 
+      match stack with 
+      |[]->()
+      |x::q->
+        let pred_nodes = predecessors acfg x in 
+        let pred_values = List.map (fun y -> (find_node acfg y).value) pred_nodes in 
+        let pred_a = join_list pred_values in 
+        let c = (find_node ccfg x).value in 
+        let new_a = F.interpretation c pred_a in 
+        let a = (find_node acfg x).value in 
+        if not (A.equal a new_a) then begin
+          Hashtbl.replace acfg x {value = new_a;next = (Hashtbl.find ccfg x).next};
+          let succ = Icfg.successors acfg x in 
+          let new_stack = succ@q in
+          foo new_stack
+          end
+        else
+          foo q;
+      in
+    foo [Cfg.N_id("0")];
+    acfg
+
+  let final_abstract_values acfg = 
+    let l = (no_successors acfg) in 
+    List.map (
+      fun n_id -> (find_node acfg n_id).value
+    ) l
+  let final_value acfg = 
+    let l = final_abstract_values acfg in 
+    join_list l
 end

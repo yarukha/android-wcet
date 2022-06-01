@@ -6,6 +6,9 @@ type pc = Instructions.pc
 let pp_m (M_id(s)) = 
   Printf.sprintf "%s" s
 
+let pp_n (N_id(s)) = 
+  Printf.sprintf "%s" s
+
 type 'a nodes = (node_id * 'a ) list 
 type position = {
   node: node_id;
