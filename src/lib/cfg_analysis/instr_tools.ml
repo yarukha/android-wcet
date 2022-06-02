@@ -15,6 +15,11 @@ let instr_to_string i =
   |Opn(_)->Printf.sprintf "other opn"
 
 
+let invoke_option i = 
+  match i.op with 
+  |Opn(Invoke(_),_)->Some(List.hd i.args)
+  |_->None
+
 
 let catch p i = 
   let l = String.split_on_char ' ' i in 

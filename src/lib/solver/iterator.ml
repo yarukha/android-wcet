@@ -45,7 +45,7 @@ module MakeIterator (A:SemiLattice) (F:Abstraction with type abstract =A.t) :
     ) cfg;
     h
   let iterate ccfg acfg = 
-    Printf.printf "number of nodes: %i\n" (Icfg.node_numbers ccfg);
+    (* Printf.printf "number of nodes: %i\n" (Icfg.node_numbers ccfg); *)
     let rec foo stack = 
       match stack with 
       |[]->()
@@ -77,3 +77,5 @@ module MakeIterator (A:SemiLattice) (F:Abstraction with type abstract =A.t) :
     let l = final_abstract_values acfg in 
     join_list l
 end
+
+

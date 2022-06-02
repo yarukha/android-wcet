@@ -32,6 +32,8 @@ let no_successors (cfg: 'a cfg) =
   ) cfg []
 
 
+let methods_count (icfg : 'a icfg)= Hashtbl.length icfg
+
 let successors (cfg: 'a cfg) n = 
   let l = (Hashtbl.find cfg n).next in 
   List.map fst l
@@ -47,6 +49,7 @@ let predecessors (cfg :'a cfg) s =
       ) [] x.next in 
       l'@l
   ) cfg []
+
 
 let find_node (cfg:'a cfg) n = Hashtbl.find cfg n 
 let replace_node (cfg: 'a cfg) n x =
