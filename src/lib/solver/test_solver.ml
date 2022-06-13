@@ -99,32 +99,43 @@ let get_invokes_cfg (cfg : Instructions.block Icfg.cfg) =
   ) cfg [] 
 
 type t2 = {t: interval; e: interval}
+
+let max_interval i1 i2 :interval = 
+  let m =  max (snd(i1)) (snd(i2)) in if snd(i1) = m then i1 else i2
 let t3_to_t2 (t: t3) = 
   {t=t.t;e=t.e}
 
-type fluck = {final_value: t2; next  : Cfg.method_id list}
 let (+) t1 t2 = 
   {t=plus_interval t1.t t2.t;e=plus_interval t1.e t2.e}
 let max_t = 50.
-let unfound_method_value = 10.
+let unfound_method_value = {t=(10.,10.);e=(9.,9.)}
 let t2_init = {t=(0.,0.);e=(0.,0.)}
 
-let max_list = 
-  List.fold_left (fun m x -> max m x) 0. 
+type alpha = {final_value: t2; next  : Cfg.method_id list}
+type theta = {m_id : Cfg.method_id; curr_te: t2}
 
 let find_max_e h m_id = 
-  let rec foo m current_te = 
-    match Hashtbl.find_opt h m with 
-    |None->unfound_method_value
-    |Some(fluck) -> 
-    let te = fluck.final_value and next = fluck.next in 
-    let new_te = te+current_te in 
-    if snd(new_te.t)> max_t then snd(new_te.e)
-    else begin
-      let l = List.map (fun m' -> foo m' new_te) next in 
-      max_list l
-    end
-  in foo m_id t2_init
+  let rec foo l curr_max  = 
+    match l with 
+    |[]->curr_max
+    |theta::q->
+      let alpha = 
+      match Hashtbl.find_opt h theta.m_id with 
+      |None->{final_value= unfound_method_value;next=[]}
+      |Some(x)->x 
+      in 
+      let new_te = theta.curr_te+ alpha.final_value in 
+      if snd(new_te.t) > max_t then foo q curr_max 
+      else
+        let new_max = max_interval new_te.e curr_max in 
+        let l' = List.map (fun m' -> {m_id=m';curr_te=new_te}) alpha.next in 
+        let new_l = l' @q in 
+        foo new_l new_max
+  in foo [{m_id;curr_te=t2_init}] (0.,0.)
+      
+
+
+  
 
 let big_time (icfg : Instructions.block Icfg.icfg) = 
   let n = Icfg.methods_count icfg in 
@@ -133,8 +144,10 @@ let big_time (icfg : Instructions.block Icfg.icfg) =
     fun m_id cfg -> Hashtbl.add h m_id {final_value =t3_to_t2 (cfg_abstract_value cfg); next = get_invokes_cfg cfg} 
   ) icfg ;
   let max_e = Hashtbl.create n in 
-  Hashtbl.iter (fun m _ -> Hashtbl.add max_e m (find_max_e h m) ) h;
-  Printf.printf "result: %f\n" (Hashtbl.fold (fun _ m m'-> max m m' ) max_e 0.)
+  let i = ref 1 in
+  Hashtbl.iter (fun m _ -> let max_int_e = find_max_e h m in Printf.printf "%i: \n%s\n" !i (FloatIntervalLattice.pp_t max_int_e);incr(i);
+    Hashtbl.add max_e m max_int_e) h;
+  Printf.printf "result: %s\n" (FloatIntervalLattice.pp_t (Hashtbl.fold (fun _ m m'-> max_interval m m' ) max_e (0.,0.)))
 
 
 
