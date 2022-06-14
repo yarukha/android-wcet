@@ -5,3 +5,4 @@ output
 wcec-dvk.opam
 xml/
 input/rdgn.cfg
+input/rdgn.dvk
