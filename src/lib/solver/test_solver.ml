@@ -145,9 +145,9 @@ let big_time (icfg : Instructions.block Icfg.icfg) =
   ) icfg ;
   let max_e = Hashtbl.create n in 
   let i = ref 1 in
-  Hashtbl.iter (fun m _ -> let max_int_e = find_max_e h m in Printf.printf "%i: \n%s\n" !i (FloatIntervalLattice.pp_t max_int_e);incr(i);
+  Hashtbl.iter (fun m _ -> let max_int_e = find_max_e h m in (*Printf.printf "%i: \n%s\n" !i (FloatIntervalLattice.pp_t max_int_e);*)incr(i);
     Hashtbl.add max_e m max_int_e) h;
-  Printf.printf "result: %s\n" (FloatIntervalLattice.pp_t (Hashtbl.fold (fun _ m m'-> max_interval m m' ) max_e (0.,0.)))
+  (* Printf.printf "result: %s\n" (FloatIntervalLattice.pp_t (Hashtbl.fold (fun _ m m'-> max_interval m m' ) max_e (0.,0.))) *)
 
 
 

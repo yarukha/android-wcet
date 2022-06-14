@@ -15,7 +15,29 @@ let instr_to_string i =
   |Opn(_)->Printf.sprintf "other opn"
 
 
-
+let catch_args op i =
+   match op with 
+  |Opn(Invoke(_),_)-> 
+    let buf = Buffer.create 20 in 
+    let add = ref false in 
+    String.iter (
+      fun c -> if !add && (c!='\\') then Buffer.add_char buf c; if ((c='}'&& not !add)) then add := true; if ((c='/')&& !add) then add := false
+    ) i;
+    let b = Buffer.contents buf in
+    let s =String.sub (b) 2 (String.length b -4 )in
+    [s]
+  |Op2(Ifz(_),_)->
+    let s = List.nth (String.split_on_char ' ' i) 1 in 
+    let s' = List.hd (String.split_on_char ',' s) in
+    Printf.printf "%s -> [%s]\n" i s';
+    [s']
+  |Op3(If(_),_)-> 
+    let l = String.split_on_char ' ' i in 
+    let s1 = List.nth l 1 and s2 = List.nth l 2 in 
+    let s1' = List.hd (String.split_on_char ',' s1) and s2' = List.hd (String.split_on_char ',' s2) in
+    Printf.printf "%s -> [%s;%s]\n" i s1' s2';
+    [s1';s2']
+  |_ -> []
 
 
 let catch p i = 
@@ -252,17 +274,7 @@ let catch p i =
   |"const-method-type" -> raise(NotTranslated(instr))
   |"array-data" -> Opn(ArrayData,Empty)
   |_ -> raise(UnknownInstruction(instr))
-  in let args = match op with 
-  |Opn(Invoke(_),_)-> 
-    let buf = Buffer.create 20 in 
-    let add = ref false in 
-    String.iter (
-      fun c -> if !add && (c!='\\') then Buffer.add_char buf c; if ((c='}'&& not !add)) then add := true; if ((c='/')&& !add) then add := false
-    ) i;
-    let b = Buffer.contents buf in
-    let s =String.sub (b) 2 (String.length b -4 )in
-    [s]
-  |_ -> []
+  in let args = catch_args op i 
   in
   {
     pc= Pc(p);

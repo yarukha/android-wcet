@@ -1,9 +1,0 @@
-(library
- (name lexparse)
- (libraries analysis))
-
-
-(menhir
-  (modules dvkparser))
-
-(ocamllex dvklexer)
