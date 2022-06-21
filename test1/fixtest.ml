@@ -39,7 +39,7 @@ module G = struct
       else begin contribute 4 bot2;contribute 5 p end  
     |5-> contribute 6 {x = p.x; y = p.y + Cst (-3)}
     |6-> contribute 7 {x= p.x + p.y;y= p.y}
-    |7->contribute 8 {x= p.x; y = p.y + Cst  3}
+    |7->contribute 3 {x= p.x; y = p.y + Cst  3}
     |_-> ()
 end
 
