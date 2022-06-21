@@ -24,13 +24,16 @@
 
 %token EOF 
 
-%start cfg
-%type < Instructions.instruction list cfg option> cfg
+%start icfg
+%type < Instructions.instruction list cfg option> icfg
 %%
 
-cfg:
-    |header l = list(digraph) EOF {Some l}
+icfg: 
+    |l = list(cfg) EOF {Some (List.concat l)}
     |EOF {None}
+
+cfg:
+    |header l = list(digraph) {l}
 
 header: 
     |PROCESSING OPENED DEX_VERSION {}

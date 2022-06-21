@@ -1,0 +1,149 @@
+
+@article{wilhelm_worst-case_2008,
+	title = {The worst-case execution-time problem—overview of methods and survey of tools},
+	volume = {7},
+	issn = {1539-9087, 1558-3465},
+	url = {https://dl.acm.org/doi/10.1145/1347375.1347389},
+	doi = {10.1145/1347375.1347389},
+	abstract = {The determination of upper bounds on execution times, commonly called WorstCase Execution Times (WCETs), is a necessary step in the development and validation process for hard real-time systems. This problem is hard if the underlying processor architecture has components such as caches, pipelines, branch prediction, and other speculative components. This article describes diﬀerent approaches to this problem and surveys several commercially available tools and research prototypes.},
+	language = {en},
+	number = {3},
+	urldate = {2022-06-16},
+	journal = {ACM Trans. Embed. Comput. Syst.},
+	author = {Wilhelm, Reinhard and Engblom, Jakob and Ermedahl, Andreas and Holsti, Niklas and Thesing, Stephan and Whalley, David and Bernat, Guillem and Ferdinand, Christian and Heckmann, Reinhold and Mitra, Tulika and Mueller, Frank and Puaut, Isabelle and Puschner, Peter and Staschulat, Jan and Stenström, Per},
+	month = apr,
+	year = {2008},
+	pages = {1--53},
+	file = {Wilhelm et al. - 2008 - The worst-case execution-time problem—overview of .pdf:/home/fxdx/Zotero/storage/R2XKTJP2/Wilhelm et al. - 2008 - The worst-case execution-time problem—overview of .pdf:application/pdf},
+}
+
+@article{li_static_2017,
+	title = {Static analysis of android apps: {A} systematic literature review},
+	volume = {88},
+	issn = {0950-5849},
+	shorttitle = {Static analysis of android apps},
+	url = {https://www.sciencedirect.com/science/article/pii/S0950584917302987},
+	doi = {10.1016/j.infsof.2017.04.001},
+	abstract = {Context
+Static analysis exploits techniques that parse program source code or bytecode, often traversing program paths to check some program properties. Static analysis approaches have been proposed for different tasks, including for assessing the security of Android apps, detecting app clones, automating test cases generation, or for uncovering non-functional issues related to performance or energy. The literature thus has proposed a large body of works, each of which attempts to tackle one or more of the several challenges that program analyzers face when dealing with Android apps.
+Objective
+We aim to provide a clear view of the state-of-the-art works that statically analyze Android apps, from which we highlight the trends of static analysis approaches, pinpoint where the focus has been put, and enumerate the key aspects where future researches are still needed.
+Method
+We have performed a systematic literature review (SLR) which involves studying 124 research papers published in software engineering, programming languages and security venues in the last 5 years (January 2011–December 2015). This review is performed mainly in five dimensions: problems targeted by the approach, fundamental techniques used by authors, static analysis sensitivities considered, android characteristics taken into account and the scale of evaluation performed.
+Results
+Our in-depth examination has led to several key findings: 1) Static analysis is largely performed to uncover security and privacy issues; 2) The Soot framework and the Jimple intermediate representation are the most adopted basic support tool and format, respectively; 3) Taint analysis remains the most applied technique in research approaches; 4) Most approaches support several analysis sensitivities, but very few approaches consider path-sensitivity; 5) There is no single work that has been proposed to tackle all challenges of static analysis that are related to Android programming; and 6) Only a small portion of state-of-the-art works have made their artifacts publicly available.
+Conclusion
+The research community is still facing a number of challenges for building approaches that are aware altogether of implicit-Flows, dynamic code loading features, reflective calls, native code and multi-threading, in order to implement sound and highly precise static analyzers.},
+	language = {en},
+	urldate = {2022-06-16},
+	journal = {Information and Software Technology},
+	author = {Li, Li and Bissyandé, Tegawendé F. and Papadakis, Mike and Rasthofer, Siegfried and Bartel, Alexandre and Octeau, Damien and Klein, Jacques and Traon, Le},
+	month = aug,
+	year = {2017},
+	pages = {67--95},
+	file = {ScienceDirect Snapshot:/home/fxdx/Zotero/storage/JFGEV6TN/S0950584917302987.html:text/html;Submitted Version:/home/fxdx/Zotero/storage/7I8VQEBQ/Li et al. - 2017 - Static analysis of android apps A systematic lite.pdf:application/pdf},
+}
+
+@article{wagemann_whole-system_2018,
+	title = {Whole-{System} {Worst}-{Case} {Energy}-{Consumption} {Analysis} for {Energy}-{Constrained} {Real}-{Time} {Systems}},
+	abstract = {Although internal devices (e.g., memory, timers) and external devices (e.g., transceivers, sensors) signiﬁcantly contribute to the energy consumption of an embedded real-time system, their impact on the worst-case response energy consumption (WCRE) of tasks is usually not adequately taken into account. Most WCRE analysis techniques, for example, only focus on the processor and therefore do not consider the energy consumption of other hardware units. Apart from that, the typical approach for dealing with devices is to assume that all of them are always activated, which leads to high WCRE overestimations in the general case where a system switches oﬀ the devices that are currently not needed in order to minimize energy consumption. In this paper, we present SysWCEC, an approach that addresses these problems by enabling static WCRE analysis for entire real-time systems, including internal as well as external devices. For this purpose, SysWCEC introduces a novel abstraction, the power-state–transition graph, which contains information about the worst-case energy consumption of all possible execution paths. To construct the graph, SysWCEC decomposes the analyzed real-time system into blocks during which the set of active devices in the system does not change and is consequently able to precisely handle devices being dynamically activated or deactivated.},
+	language = {en},
+	author = {Wägemann, Peter and Dietrich, Christian and Distler, Tobias and Ulbrich, Peter and Schröder-Preikschat, Wolfgang},
+	year = {2018},
+	pages = {25},
+	file = {Wägemann et al. - 2018 - Whole-System Worst-Case Energy-Consumption Analysi.pdf:/home/fxdx/Zotero/storage/SG2EV2TJ/Wägemann et al. - 2018 - Whole-System Worst-Case Energy-Consumption Analysi.pdf:application/pdf},
+}
+
+@inproceedings{zhao_analyzing_1999,
+	title = {Analyzing control flow in java bytecode},
+	abstract = {Understanding control 
+ows in a computer program is essential for many software engineering tasks such as testing, debugging, reverse engineering, and mainte-nance. In this paper, we present a control 
+ow anal-ysis technique to analyze the control 
+ow in Java byte-code. To perform the analysis, we construct a control ow graph (CFG) for Java bytecode not only at the in-traprocedural level but also at the interprocedural level. We also discuss some applications of a CFG in a main-tenance environment for Java bytecode. some primary experimental results.},
+	booktitle = {in {Proc}. 16th {Conference} of {Japan} {Society} for {Software} {Science} and {Technology}},
+	author = {Zhao, Jianjun},
+	year = {1999},
+	pages = {313--316},
+	file = {Citeseer - Full Text PDF:/home/fxdx/Zotero/storage/MLLTW5BR/Zhao - 1999 - Analyzing control flow in java bytecode.pdf:application/pdf;Citeseer - Snapshot:/home/fxdx/Zotero/storage/ISVI7EKV/download.html:text/html},
+}
+
+@misc{noauthor_dalvik_nodate,
+	title = {Dalvik {Executable} format {\textbar} {Android} {Open} {Source} {Project}},
+	url = {https://source.android.com/devices/tech/dalvik/dex-format},
+	language = {en},
+	urldate = {2022-06-16},
+}
+
+@article{li_performance_nodate,
+	title = {Performance {Analysis} of {Embedded} {Software} {Using} {Implicit} {Path} {Enumeration}},
+	abstract = {Embedded computer systems are characterized by the presence of a processor running application speciﬁc software. A large number of these systems must satisfy real-time constraints. This paper examines the problem of determining the bound on the running time of a given program on a given processor. An important aspect of this problem is determining the extreme case program paths. The state of the art solution here relies on an explicit enumeration of program paths. This runs out of steam rather quickly since the number of feasible program paths is typically exponential in the size of the program. We present a solution for this problem, which considers all paths implicitly by using integer linear programming. This solution is implemented in the program cinderella 1 which currently targets a popular embedded processor — the Intel i960. The preliminary results of using this tool are presented here.},
+	language = {en},
+	author = {Li, Yau-Tsun Steven and Malik, Sharad},
+	pages = {6},
+	file = {Li and Malik - Performance Analysis of Embedded Software Using Im.pdf:/home/fxdx/Zotero/storage/QKU4XWMB/Li and Malik - Performance Analysis of Embedded Software Using Im.pdf:application/pdf},
+}
+
+@incollection{alpuente_automatic_2008,
+	address = {Berlin, Heidelberg},
+	title = {Automatic {Inference} of {Upper} {Bounds} for {Recurrence} {Relations} in {Cost} {Analysis}},
+	volume = {5079},
+	isbn = {978-3-540-69163-1 978-3-540-69166-2},
+	url = {http://link.springer.com/10.1007/978-3-540-69166-2_15},
+	abstract = {The classical approach to automatic cost analysis consists of two phases. Given a program and some measure of cost, we ﬁrst produce recurrence relations (RRs) which capture the cost of our program in terms of the size of its input data. Second, we convert such RRs into closed form (i.e., without recurrences). Whereas the ﬁrst phase has received considerable attention, with a number of cost analyses available for a variety of programming languages, the second phase has received comparatively little attention. In this paper we ﬁrst study the features of RRs generated by automatic cost analysis and discuss why existing computer algebra systems are not appropriate for automatically obtaining closed form solutions nor upper bounds of them. Then we present, to our knowledge, the ﬁrst practical framework for the fully automatic generation of reasonably accurate upper bounds of RRs originating from cost analysis of a wide range of programs. It is based on the inference of ranking functions and loop invariants and on partial evaluation.},
+	language = {en},
+	urldate = {2022-06-20},
+	booktitle = {Static {Analysis}},
+	publisher = {Springer Berlin Heidelberg},
+	author = {Albert, Elvira and Arenas, Puri and Genaim, Samir and Puebla, Germán},
+	editor = {Alpuente, María and Vidal, Germán},
+	year = {2008},
+	doi = {10.1007/978-3-540-69166-2_15},
+	note = {ISSN: 0302-9743, 1611-3349
+Series Title: Lecture Notes in Computer Science},
+	pages = {221--237},
+	file = {Albert et al. - 2008 - Automatic Inference of Upper Bounds for Recurrence.pdf:/home/fxdx/Zotero/storage/X5GN4SW6/Albert et al. - 2008 - Automatic Inference of Upper Bounds for Recurrence.pdf:application/pdf},
+}
+
+@inproceedings{cousot_abstract_1977,
+	address = {Los Angeles, California},
+	title = {Abstract interpretation: a unified lattice model for static analysis of programs by construction or approximation of fixpoints},
+	shorttitle = {Abstract interpretation},
+	url = {http://portal.acm.org/citation.cfm?doid=512950.512973},
+	doi = {10.1145/512950.512973},
+	language = {en},
+	urldate = {2022-06-20},
+	booktitle = {Proceedings of the 4th {ACM} {SIGACT}-{SIGPLAN} symposium on {Principles} of programming languages  - {POPL} '77},
+	publisher = {ACM Press},
+	author = {Cousot, Patrick and Cousot, Radhia},
+	year = {1977},
+	pages = {238--252},
+	file = {Cousot and Cousot - 1977 - Abstract interpretation a unified lattice model f.pdf:/home/fxdx/Zotero/storage/U9WEA8RP/Cousot and Cousot - 1977 - Abstract interpretation a unified lattice model f.pdf:application/pdf},
+}
+
+@article{wilhelm_real_2020,
+	title = {Real time spent on real time},
+	volume = {63},
+	issn = {0001-0782, 1557-7317},
+	url = {https://dl.acm.org/doi/10.1145/3375545},
+	doi = {10.1145/3375545},
+	abstract = {Interpretation provides the theoretical foundation for a sound and efficient WCET analysis.},
+	language = {en},
+	number = {10},
+	urldate = {2022-06-20},
+	journal = {Commun. ACM},
+	author = {Wilhelm, Reinhard},
+	month = sep,
+	year = {2020},
+	pages = {54--60},
+	file = {Wilhelm - 2020 - Real time spent on real time.pdf:/home/fxdx/Zotero/storage/P95E3J2H/Wilhelm - 2020 - Real time spent on real time.pdf:application/pdf},
+}
+
+@inproceedings{wilhelm_abstract_2008,
+	title = {Abstract {Interpretation} with {Applications} to {Timing} {Validation}},
+	isbn = {978-3-540-70543-7},
+	doi = {10.1007/978-3-540-70545-1_6},
+	author = {Wilhelm, Reinhard and Wachter, Björn},
+	month = jul,
+	year = {2008},
+	pages = {22--36},
+}

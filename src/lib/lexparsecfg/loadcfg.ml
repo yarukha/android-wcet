@@ -8,7 +8,7 @@ let print_position outx lb =
     pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
 
 let parse_with_errors lexbuf =
-  try Cfgparser.cfg Cfglexer.token lexbuf with 
+  try Cfgparser.icfg Cfglexer.token lexbuf with 
   |Cfglexer.SyntaxError msg ->
     Printf.fprintf stderr "%a: %s\n" print_position lexbuf msg;
     None

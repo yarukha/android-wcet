@@ -1,5 +1,6 @@
 open Printf
 
+
 type cst = Bot | Top | Cst of int 
 let s_cst x = match x with |Bot -> "bot" |Top -> "top" |Cst(i) -> sprintf "%i" i
 let join_cst a b = match a,b with 
@@ -46,5 +47,5 @@ module F = Fix.DataFlow.ForOrderedType (T) (P) (G)
 let sol = F.solution  
 
 let l = [1;2;3;4;5;6;7;8]
-let () = 
+let f () = 
   List.iter (fun k -> printf "%i: %s\n" k (s_cst2_opt (sol k))) l
