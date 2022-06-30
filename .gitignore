@@ -6,6 +6,7 @@ wcec-dvk.opam
 xml/
 input/rdgn.cfg
 input/rdgn.dvk
+input/rdgn*
 
 paper/rapport/rapport.aux
 paper/rapport/rapport.bbl
