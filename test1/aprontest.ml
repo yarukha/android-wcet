@@ -1,5 +1,5 @@
 open Apron;;
-open Mpqf;;
+(* open Mpqf;; *)
 open Format;;
 
 let print_array = Abstract0.print_array;;
@@ -140,9 +140,12 @@ let ex1 (man:'a Manager.t) : 'a Abstract1.t =
   abs
 ;;
 
-let abs1 = ex1 manpk;;
-let abs2 = ex1 manppl;;
-let abs3 = ex1 manoct;;
-let abs4 = ex1 manbox;;
+(*let abs1 = ex1 manpk;;
+let abs2 = ex1 manppl;;*)
+let abs3 = ex1 manbox;;
+(*let abs4 = ex1 manbox;;
 let abs5 = ex1 maneq;;
-let abs6 = ex1 mangrid;;
+let abs6 = ex1 mangrid;;*)
+
+let f () = 
+  Abstract1.print std_formatter abs3

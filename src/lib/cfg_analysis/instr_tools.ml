@@ -14,6 +14,14 @@ let instr_to_string i =
   |Op3(_)->Printf.sprintf "op3"
   |Opn(_)->Printf.sprintf "other opn"
 
+let invoke_type_to_string = function 
+  |Virtual -> "Virtual"
+  |Super -> "Super"
+  |Direct -> "Direct"
+  |Static->"Static"
+  |Interface -> "Interface"
+  |Polymorphic -> "Polymorphic"
+  |Custom -> "Custom"
 
 let catch_args op i =
    match op with 

@@ -6,6 +6,8 @@ default: build
 
 build:
 	dune build @install  
+test:
+	dune runtest
 
 install:
 	dune install
