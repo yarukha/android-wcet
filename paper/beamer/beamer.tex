@@ -1,6 +1,8 @@
 \documentclass{beamer}
 \usepackage{amsmath}
 \usepackage{stmaryrd}
+\usepackage{graphicx}   
+\graphicspath{ {./pics/}}
 %Information to be included in the title page:
 \title{Profiling energy consumption of Android applications}
 \author{Paul Robert}
@@ -11,115 +13,131 @@
 \frame{\titlepage}
 
 \begin{frame}
-\frametitle{Overview and goals}
-\pause
-\begin{itemize}
-    \item Classify applications based on their "energy consumption"
-    \pause
-    \item Static analysis on packaged apps (APK)
-    \pause
-    \item Several approximations to identify
-\end{itemize}
-
-
+    \frametitle{la honte...}
+    \includegraphics{lahonte}
 \end{frame}
 
-
-\begin{frame}{Structure of the project}
-\begin{itemize}
-    \item 3 main parts can be identified
-    \pause
-    \item Analysis of the APK
-    \pause 
-    \item Definition of a power model
-    \pause
-    \item The "in between", analysis of the CFG
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Android programs structure}
-\begin{itemize}
-    \item modified java bytecode (.dex files) 
-    \pause
-    \item use features inherited from java and several improvements
-    \pause
-    \item We need to ignore several features (AOT compilation, reflection and others...)
-    \pause
-    \item Compilation chain: Development language $\rightarrow$ Java $\rightarrow$ Intermediate languages $\rightarrow$ Java bytecode $\rightarrow$ Dalvik/ART bytecode
-    \pause
-    \item Which level of code do we use to create a CFG? 
-    \pause
-    \item Short answer: Working at the lowest level allows to easily specify an energy model
-\end{itemize}
-    
-\end{frame}
-
-\begin{frame}{Power model}
-\begin{itemize}
-    \item Current idea: associate each bytecode instruction to a consumption value (time and/or energy)
-    \pause  
-    \item VERY simple model, ignore parameters of instruction, system and hardware calls
-    \pause 
-    \item Create several test programs, count the number of each bytecode instructions and mesure the total energy/time of each program
-    \pause
-    \item We get a system to solve: $I_{count} X = E_{total}$
-    \pause
-    \item We can do that for both time and energy consumption of each bytecode instruction
-    \pause 
-    \item Idea of consumption profiling: max energy consumed in a given time
-\end{itemize}
-    
-\end{frame}
-
-\begin{frame}{Implementing the profiling model}
-\begin{itemize}
-    \item A simple prototype can be created by ignoring conditional branching
-    \pause
-    \item Can start at any point of the CFG
-    \pause 
-    \item We can extend the profiling: (average of paths, worst case...)
-    \pause 
-    \item We still need to figure out which parts of the CFG are accessible
-\end{itemize}
-    
-\end{frame}
-
-\begin{frame}{Abstract interpretation}
-\begin{itemize}
-    
-    \item Gives a framework to do static analysis on the CFG $E\subseteq V \times Op \times V$
-    \pause 
-    \item Given an abstraction function $\llbracket\rrbracket: Op \rightarrow (A\rightarrow A)$
-    \pause 
-    \item Fixpoint of the functionnal $F: (V\rightarrow A) \rightarrow (V\rightarrow A)$: \\
-    \begin{equation}
-        F(f)(v')= \begin{cases}
-            l_0 & \text{if } v=v_0\\
-            \bigsqcup\limits_{(v,op,v')\in E} \llbracket op \rrbracket (f(v)) & \text{otherwise}
-        \end{cases}
-    \end{equation}
-    \pause 
-    \item For $A= [1,maxint]$, $Op$ the bytecode instructions, $\llbracket \rrbracket$ the energy model and $\bigsqcup = max$, we obtain a function giving the total energy consumed for each program state 
-\end{itemize}
-    
-
-\end{frame}
-
-\begin{frame}{Abstract interpretation}
-    
+\begin{frame}
+    \frametitle{Quick summary}
     \begin{itemize}
-        \item We can work with several lattices at a time: $[0,max_{time}] \times [0,max_{energy}] $, remove cycles by taking all possible path: prototype is done
-        \pause 
-        \item Still need to recognize conditional branching to have correct results
-        \pause 
-        \item we can consider the current value (or an approximation) of each register to solve this problem
-        \pause 
-        \item Constant propagation, interval analysis, pipeline analysis ...
-        \pause 
-        \item We can also compute intervals of consumption for sections of code 
-        \pause 
-        \item It all comes down to defining a lattice and an abstraction function
+        \pause
+        \item What is an energy consuming application? \pause
+        \item Few words on the Android bytecode \pause
+        \item Control flow graph \pause
+        \item ILP to solve the problem \pause
+        \item Refine the analysis with abstract interpretation
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Definitions and specification}
+    \begin{itemize}
+        \pause
+        \item Trying to identify spikes of energy consumption: WCEC in a given time \pause
+        \item Simple model: we assume energy and time for native Android operations is known
+        \item APK= Dalvik/ART bytecode files + data \pause 
+        \item bytecode = list of methods declaration
+        \item ~240 bytecode instruction + 1000+ native methods
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Method CFG}
+    We can easily build a CFG for all the methods defined in a bytecode \pause 
+    \begin{figure}[h]
+        \includegraphics[scale=0.21]{cfg.jpg}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Linking the methods}
+    \pause
+    \begin{itemize}
+        \item Each method has its CFG, defined independantly \pause 
+        \item Methods are linked through invokes \pause
+        \item Native methods can be and are invoked \pause
+    \end{itemize}
+    We may compute the consumption and execution time of each block for each cfg \\ \pause 
+    "All" we have to do is to find the WCEC path in a given time 
+\end{frame}
+
+\begin{frame}
+    \frametitle{Reduction to ILP}
+    We may reduce our path problem to an ILP one \pause
+    \begin{align*}
+        & \text{maximize}   && \mathbf{c}^\mathrm{T} \mathbf{x}\\
+        & \text{subject to} && A \mathbf{x} \le \mathbf{b}, \\
+        &  && \mathbf{x} \ge \mathbf{0}, \\
+        & \text{and} && \mathbf{x} \in \mathbb{Z}^n,
+        \end{align*}
+    Where $\mathbf x$ is the execution count of each block\\ \pause 
+    A solution may be infeasible in pratice, we have to refine the analysis...
+\end{frame}
+
+\begin{frame}
+    \frametitle{Refining the analysis}
+    \pause 
+    \begin{itemize}
+        \item We need to add more constraints to the ILP problem \pause 
+        \item Infering bounds to block execution count from each method CFG \pause 
+        \item We will use AI \pause 
+    \end{itemize}
+    \break
+    \break
+    Equational semantics \pause $\rightarrow$ abstraction \pause $\rightarrow$ fixpoint solver 
+\end{frame}
+
+\begin{frame}
+    \frametitle{(Very) short Abstract interpretation summary}
+    \pause 
+    \begin{itemize}
+        \item At certain program points $\in V$, we want to map concrete values to abstract ones \pause
+        \item The invariants of a program are defined by the fixpoint of a (monotonic) function $f: (V \rightarrow  C) \rightarrow (V \rightarrow  C)$ \pause 
+        \item Need to lose details to obtain computability \pause
+        \item We have a monotonic abstraction function $\alpha : C \rightarrow A$ \pause 
+        \item Abstract invariants: fixpoint of $f': (V \rightarrow  A) \rightarrow (V \rightarrow  A)$ \pause 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Example of collecting semantics}
+    \pause 
+    Given a set of invariant equations for program points $\mathcal X_1 \cdots \mathcal X_n$: \\
+    $\mathcal X_i = \mathcal F_i(\mathcal X_1,\cdots, \mathcal X_n)$\\ \pause
+    The function $F(X)=(\mathcal F_1 (X),\cdots, \mathcal F_n (X))$ can be used to compute a fixpoint \pause 
+    \begin{figure}[h]
+        \includegraphics[scale=0.2]{code.png} \pause \includegraphics[scale=0.3]{eqs_graph.png} \pause \includegraphics[scale=0.2]{equations.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Abstracting}
+    \begin{itemize}
+        \pause
+        \item Define an abstract domain (a lattice) \pause 
+        \item Simple ones: Constant, Sign, Interval \pause
+        \item Carefully define abstraction function and abstract operators \pause 
+        \item Compute a fixpoint $\rightarrow$ done!
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Back to the project}
+    \begin{itemize}
+        \item We want to know more about block execution counts \pause 
+        \item Analyze each method individually \pause 
+        \item Interval domain $I$ for each block \pause 
+        \item Finite number of register used in a method, abstracted to $D$ \pause 
+        \item Abstraction on both $D$ and $I$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Octagon Domain}
+    \begin{itemize}
+        \pause
+        \item We need to know constraints in-between registers \pause
+        \item Intervals are not enough \pause 
+        \item Octagon: $V_i \pm V_j \leq c$
     \end{itemize}
 \end{frame}
 \end{document}

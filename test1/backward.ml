@@ -30,22 +30,14 @@ let widening = Abstract1.widening man
 let top = Abstract1.top man env
 let bot = Abstract1.bottom man env
 let (eqs : F.equations) = fun i v -> match i with 
-  |1->top 
-  |2->assign_array (v 1) [|"x"|] [|"[0;10]"|]
-  |3->widening (v 3) (join (assign_array (v 2) [|"y"|] [|"100"|]) (assign_array (v 5) [|"y"|] [|"y+10"|]))
-  |4->meet (v 3) (abs_from_tag ["x>=0"])
-  |5->assign_array (v 4) [|"x"|] [|"x-1"|]
-  |6->meet (v 3) (abs_from_tag ["x<0"])
-  |_->bot
-
-(*   |2 -> abs_from_tag ["x1=0"]
+  |2 -> abs_from_tag ["x1=0"]
   |3 -> Abstract1.widening man (v 3) (Abstract1.join man (v 2) (v 6))
   |4 -> Abstract1.meet man (v 3) (abs_from_tag ["x1<40"])
   |5 -> Abstract1.assign_linexpr man (v 4) (Var.of_string "x2") (Parser.linexpr1_of_string env "x1") None
   |6 -> Abstract1.assign_linexpr man (v 5) (Var.of_string "x1") (Parser.linexpr1_of_string env "x2+1") None
   |7 -> Abstract1.meet man (v 3) (abs_from_tag ["x1>=40"])
   |_ -> P.bottom
- *)
+
 let l = [1;2;3;4;5;6]
 let print_valuation (v: int -> 'a Abstract1.t) = 
   List.iter (fun i -> printf "#%i: %a@." i Abstract1.print (v i)) l

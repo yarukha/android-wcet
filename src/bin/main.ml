@@ -1,5 +1,6 @@
 open Lexparsecfg
 open Cfg_analysis
+open Solver
 
 
 let usage_msg = "wcec [-verbose] <file>"
@@ -33,6 +34,7 @@ let () =
     (* let cfg = Link_methods.consider_invokes (Simplifycfg.simplify l) in  *)
     let icfg = Cfg2icfg.transform_cfg l in
     Printf.printf "\ncfg simplification done (at least the easy part)\n";
-    Dbg_tools.defined_methods icfg;
-    Dbg_tools.undefined_methods icfg
+    (* Dbg_tools.defined_methods icfg; *)
+    (* Dbg_tools.undefined_methods icfg *)
     (*Test_solver.big_time icfg;*)
+    Test_lp.f icfg

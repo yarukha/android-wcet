@@ -23,5 +23,7 @@ paper/beamer/beamer.log
 paper/beamer/beamer.out
 paper/beamer/beamer.pdf
 paper/beamer/beamer.snm
-paper/beamer/beamer.synctex.gz
+paper/beamer/beamer.synctex.*
 paper/beamer/beamer.toc
+paper/beamer/pics/*
+truc.lp
