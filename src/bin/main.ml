@@ -1,7 +1,5 @@
 open Lexparsecfg
 open Cfg_analysis
-open Solver
-
 
 let usage_msg = "wcec [-verbose] <file>"
 let verbose = ref false
@@ -32,9 +30,4 @@ let () =
     Printf.printf "not exception edges number: %i\n" 
     (List.fold_left (fun i (_,dg) ->i + Cfg.(List.length dg.taken_edges + List.length dg.regular_edges)  ) 0 l);
     (* let cfg = Link_methods.consider_invokes (Simplifycfg.simplify l) in  *)
-    let icfg = Cfg2icfg.transform_cfg l in
-    Printf.printf "\ncfg simplification done (at least the easy part)\n";
-    (* Dbg_tools.defined_methods icfg; *)
-    (* Dbg_tools.undefined_methods icfg *)
-    (*Test_solver.big_time icfg;*)
-    Test_lp.f icfg
+  let _= Icfg.Block_Icfg.create l in ()
