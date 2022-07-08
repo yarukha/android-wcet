@@ -35,7 +35,10 @@ end
 
 module Block_Icfg = struct 
   module Icfg = Make_Icfg(Block_id)
-  type t = Instructions.block Icfg.t 
+  module S_Meth = Set.Make(String)
+  type t = Instructions.block Icfg.t  
+  
+  (**construct a graph from a block, taking into account invoke splitting: each invoke instruction has its own block*)
   let split_block b_id next b = 
     let g0 = Icfg.empty in 
     let open Instructions in 
@@ -53,6 +56,9 @@ module Block_Icfg = struct
           foo q [] g'' (count +2)
         |_->foo q (i::last_block) g count 
       in foo b [] g0 0 
+  
+  
+  (**create a cfg from a method*)
   let add_method b_id dg = 
     let open Cfg in
     let open Icfg in
@@ -76,6 +82,8 @@ module Block_Icfg = struct
 
     )  g0 dg.nodes in Hashtbl.clear h; g_final
 
+  
+  (**create an icfg from a cfg*)
   let create : Instructions.block Cfg.cfg -> t= 
     let open Cfg in 
     let open Icfg in 
@@ -85,7 +93,13 @@ module Block_Icfg = struct
         let g' = add_method b_id dg in 
         merge g g'
     ) g0
+  
+  (**set of all the methods entry point*)
+  let def_meths : t -> t=
+    Icfg.M.filter (
+      fun b_id _ -> b_id.n_id = "0" && b_id.sub_id = 0
+    )
+  
 end
-
 
 
