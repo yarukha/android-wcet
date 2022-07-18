@@ -1,2 +1,3 @@
 (library 
-(name cfg_analysis))
+(name cfg_analysis)
+(libraries lp-glpk progress))
