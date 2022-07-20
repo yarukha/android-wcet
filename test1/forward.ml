@@ -1,15 +1,14 @@
 open Apron
 open Format
 
-module Domain = Box
-let man = Domain.manager_alloc ()
+let man = Oct.manager_alloc ()
 let vars_of_id = (Array.map (fun i -> Var.of_string (Printf.sprintf "x%i" i))) 
 let env = Environment.make (vars_of_id [|1;2|]) [||]
 
 module T = Int 
 
 module P = struct 
-  type property = Domain.t Abstract1.t
+  type property = Oct.t Abstract1.t
   let leq_join :(property -> property -> property)= fun p q -> Abstract1.join man p q 
 end
 
