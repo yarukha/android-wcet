@@ -43,6 +43,9 @@ module Make_Icfg(Ord: Map.OrderedType) = struct
   let find_next = 
     fun k g -> (M.find k g).next
 
+  (**set of keys matching a property*)
+  let filter_set : (key->bool) -> 'a t -> S.t= 
+    fun f g -> M.fold (fun k _ s -> if f k then S.add k s else s) g (S.empty)
 end
 
 
@@ -181,7 +184,14 @@ module Block_Icfg = struct
       let m = Icfg.M.filter (fun k' _ -> k'.m_id = k.m_id) icfg in 
       let open Format in 
       printf "Method with entry point:\n"; Block_id.pp k;
-      printf "Containing nodes:\n"; Icfg.M.iter (fun k' _ -> Block_id.pp k'; pp_node k' icfg) m;
+      printf "Containing nodes:\n"; Icfg.M.iter (fun k' _ -> Block_id.pp k'; pp_node k' icfg) m
+
+
+  let method_set = 
+    fun k g -> match Block_id.is_method_entry k with 
+    |false->failwith (Format.sprintf "%s is not a method entry" (Block_id.to_string k))
+    |true->Icfg.filter_set (Block_id.same_method k) g
+
 end
 
 

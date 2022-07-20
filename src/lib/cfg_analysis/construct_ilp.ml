@@ -138,10 +138,13 @@ let debug_ilp b_id icfg def_meths =
   printf "%s\n" (Lp.to_string ~short:true  prob);
   match Lp_glpk.solve prob with 
   |Ok(obj,vars)->
-    printf "result for %s" (Block_id.method_string b_id);
+    printf "result for %s\n" (Block_id.method_string b_id);
     printf "For max_t=%F WCEC=%F\n\n" (Bt.given_value) obj;
     printf "with block counts:\n";
-    Lp.PMap.iter (fun b v -> printf "%F <- %s\n" v (Lp.Poly.to_string b)) vars
+    Lp.PMap.iter (fun b v ->
+      let s = (Lp.Poly.to_string ~short:true b) in 
+      if s.[String.length s -1] = 'f'&&(v=0.) then () else 
+        printf "%F <- %s\n" v s) vars
   |Error msg -> printf "%s for method %s" msg (Block_id.method_string b_id)
 
 

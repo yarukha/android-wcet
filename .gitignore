@@ -27,3 +27,4 @@ paper/beamer/beamer.synctex.*
 paper/beamer/beamer.toc
 paper/beamer/pics/*
 truc.lp
+.vscode/settings.json

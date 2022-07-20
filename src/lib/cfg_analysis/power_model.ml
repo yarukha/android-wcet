@@ -38,12 +38,12 @@ end
 
 module T : PowerModel= struct 
   include FloatValue
-  let given_value = 500.
+  let given_value = 100.
   let from_instr instr= 
     let t= Array.make number_instructions 0. in 
     Random.init 32;
     for i = 0 to number_instructions -1 do 
-      t.(i)<-Random.float range
+      t.(i)<-1.
     done;
     t.(instruction_id instr)
   let from_native _ = 20.
@@ -56,10 +56,10 @@ module E : PowerModel= struct
     let t= Array.make number_instructions 0. in 
     Random.init 33;
     for i = 0 to number_instructions -1 do 
-      t.(i)<-Random.float range
+      t.(i)<-1.
     done;
     t.(instruction_id instr)
-  let from_native _ = 45.
+  let from_native _ = 50.
 end
 
 module Block_Model(Et:PowerModel) = struct 

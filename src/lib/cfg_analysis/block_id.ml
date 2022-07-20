@@ -13,7 +13,7 @@ let to_string ?(short=short_printing) b =
   if short then
     Format.sprintf "n%ss%i" b.n_id b.sub_id
   else
-    Format.sprintf "%s node%s subnode%i" b.m_id b.n_id b.sub_id
+    Format.sprintf "%s n%s s%i" b.m_id b.n_id b.sub_id
 
 (**string of block_id nicely formated for LP variable string*)
 let to_string_nice b = 
@@ -28,4 +28,6 @@ let return_node b_id =
   {b_id with n_id="return";sub_id=0}
 let is_return b_id = 
   b_id.n_id="return" && b_id.sub_id=0
+let same_method b_id1 b_id2 = 
+  b_id1.m_id = b_id2.m_id
 

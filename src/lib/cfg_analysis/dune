@@ -1,3 +1,4 @@
 (library 
 (name cfg_analysis)
-(libraries lp-glpk progress))
+(libraries lp-glpk progress fix apron)
+)

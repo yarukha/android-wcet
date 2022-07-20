@@ -39,5 +39,6 @@ let () =
   let b0 = Block_id.from_meth_string "int android.support.v7.internal.widget.ListPopupWindow.buildDropDown()" in
   let b1 = Block_id.from_meth_string "void android.support.v4.app.ActionBarDrawerToggle$SlideDrawable.draw(android.graphics.Canvas)" in 
   let _ = b0 and _= b1 in 
-  (* Construct_ilp. b1 icfg def_meths *)
-  Construct_ilp.analyze_icfg ~out:(Some("output/ilp")) icfg def_meths
+  let _ = Sys.command "echo \"prout ptour\"" in
+  (* Construct_ilp.analyze_icfg ~out:(Some("output/ilp")) icfg def_meths *)
+  Construct_ilp.debug_ilp b0 icfg def_meths
