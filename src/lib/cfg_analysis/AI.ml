@@ -7,7 +7,7 @@ end
 
 module MakeSolver(A:Analysis_spec)= struct 
   open Apron
-  module Domain = Oct
+  module Domain = Box
   module Instr_pos = struct 
     type t = {block: Block_id.t; pos :int}
     let compare = compare

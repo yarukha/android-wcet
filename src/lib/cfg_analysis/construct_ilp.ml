@@ -23,7 +23,7 @@ let reachable_blocks icfg b0 def_meths=
   let reached_h = Hashtbl.create 32 in 
   let links_h = Hashtbl.create 32 in 
   let block0 = Block_Icfg.Icfg.find_value b0 icfg in 
-  let s0 = So.singleton (Bt.from_block block0 def_meths,(Block_id.dummy,b0)) in
+  let s0 = So.singleton (Bt.from_block def_meths block0,(Block_id.dummy,b0)) in
   let is_minimal k t= 
     match Hashtbl.find_opt reached_h k with 
     |None-> true
@@ -36,7 +36,7 @@ let reachable_blocks icfg b0 def_meths=
         let s' = So.remove (t,(k1,(k2))) s in
         let block = Block_Icfg.Icfg.find_value k2 icfg in 
         let next = Block_Icfg.Icfg.find_next k2 icfg in 
-        let curr_t = Bt.add t (Bt.from_block block def_meths) in 
+        let curr_t = Bt.add t (Bt.from_block def_meths block) in 
         let not_min = not (is_minimal k2 curr_t) in
         if (Bt.over_max curr_t||not_min) then 
           foo s' 
@@ -61,60 +61,76 @@ let reachable_blocks icfg b0 def_meths=
     
     
     
-    
+module D = struct 
+  type t =  Block_id.t * Block_id.t
+  let compare = compare
+end
+module S_d = Set.Make(D)
+module M_d = Map.Make(D)  
 
-  
 let create_problem icfg b0 rb def_meths= 
-  let (t_map,e_map) = S_key.fold (
-    fun b_id (t_m,e_m) -> 
+  let b_init = Block_id.from_meth_string "init" and b_final = Block_id.from_meth_string "final" in
+  let (t_map,e_map) =
+      (M_key.empty|>M_key.add b_init Bt.zero|>M_key.add b_final Bt.zero,
+      M_key.empty|>M_key.add b_init  Be.zero|>M_key.add b_final Be.zero) 
+    |>S_key.fold (
+    fun b_id (t_m,e_m) ->
       let block = Block_Icfg.Icfg.find_value b_id icfg in 
-      let b_t = Bt.from_block block def_meths and b_e = Be.from_block block def_meths in 
+      let b_t = Bt.from_block def_meths block and b_e = Be.from_block def_meths block in 
       (M_key.add b_id b_t t_m,M_key.add b_id b_e e_m)
-  ) rb (M_key.empty,M_key.empty) in 
-  let (b_vars,f_vars) = S_key.fold (
-    fun b_id (b_m,f_m) -> 
-      let s =  Block_id.to_string_nice b_id in 
-      (M_key.add b_id (Lp.var ~integer:true s) b_m,M_key.add b_id (Lp.var ~integer:true (String.cat s "f") )f_m)
-  ) rb (M_key.empty,M_key.empty) in 
+    ) rb  in  
+  let b_vars = 
+    M_key.empty 
+    |>M_key.add b_init (Lp.var ~integer:true "init")
+    |>M_key.add b_final (Lp.var ~integer:true "final")
+    |>S_key.fold ( 
+    fun b_id m -> let s = Block_id.to_string_nice b_id in 
+    M_key.add b_id (Lp.var ~integer:true s) m
+  ) rb in 
+  let s_d = S_key.fold (
+    fun b_id s-> match Block_Icfg.split_invoke b_id icfg with 
+      |None->
+        let next = Block_Icfg.Icfg.find_next b_id icfg in 
+        Block_Icfg.S_Edg.fold (fun edg s' -> if S_key.mem edg.next rb then S_d.add (b_id,edg.next) s' else s') next s
+        |>S_d.add (b_id,b_final)
+      |Some(inv,after_inv)->
+        if S_key.mem inv rb then begin
+          let s' = S_d.add (b_id,inv) s |> S_d.add (b_id,b_final) in 
+          if S_key.mem after_inv rb then 
+            let ret = Block_id.return_node inv in 
+            S_d.add (ret,after_inv) s' |> S_d.add (ret,b_final)
+          else s' end
+        else s
+    ) rb (S_d.singleton (b_init,b0)) in 
+  let d_vars = S_d.fold (
+    fun (b1,b2) m ->
+      M_d.add (b1,b2) 
+      (Lp.var ~integer:true @@ Format.sprintf "%sdd%s!" (Block_id.to_string_nice b1) (Block_id.to_string_nice b2)) m
+  ) s_d (M_d.empty) in 
   let open Lp in 
   let obj = maximize (M_key.fold (
-    fun b_id b_v p -> p++ (c (M_key.find b_id e_map) *~ b_v)
+    fun b_id b_v p -> Block_id.pp b_id; p++ (c (M_key.find b_id e_map) *~ b_v)
   )b_vars zero) in
   let time_cnstr = Cnstr.lt ~name:"time" (M_key.fold (
     fun b_id b_v p -> p ++ ( c (M_key.find b_id t_map) *~ b_v) 
   ) b_vars zero) (c Bt.given_value) in 
-  let final_cnstr = Cnstr.eq ~name:"final" (M_key.fold (
-    fun _ f_v p -> p ++ f_v
-  )f_vars zero) one in 
   let flow_cnstr = 
-    let h = Hashtbl.create (S_key.cardinal rb) in 
-    let find_m b_v m = match M_key.find_opt b_v m with 
-      |None->zero 
-      |Some(p)->p in
-    let add_c p b_id = match Hashtbl.find_opt h b_id with 
-      |None->Hashtbl.add h b_id p 
-      |Some(prev_p)-> Hashtbl.replace h b_id (prev_p ++ p) in 
-    S_key.iter (fun b_id -> Hashtbl.add h b_id zero) rb; 
-    add_c one b0;
-    M_key.iter (
-      fun b_id b_v -> 
-        let next = Block_Icfg.Icfg.find_next b_id icfg in 
-        match Block_Icfg.split_invoke b_id icfg with 
-        |None->
-          let out_p= Block_Icfg.Icfg.Edg_set.fold (
-            fun n p -> add_c b_v n.next; p -- (find_m n.next b_vars) 
-          ) next zero in 
-          add_c out_p b_id;
-        |Some(inv,after_inv)->
-          add_c b_v inv;add_c (~-- (find_m inv b_vars)) b_id;
-          let ret = Block_id.return_node inv in 
-          add_c (find_m ret b_vars) after_inv;add_c (~-- (find_m after_inv b_vars)) ret 
-    ) b_vars;
+    let h = Hashtbl.create (2* (S_key.cardinal rb)) in 
+    let add_d d d_v=
+      let (b1,b2)= d in 
+      match Hashtbl.find_opt h b1 with 
+      |None->Hashtbl.add h b1 (zero,d_v)
+      |Some(d1,d2)->Hashtbl.replace h b1 (d1, d2 ++ d_v);
+      match Hashtbl.find_opt h b2 with 
+      |None->Hashtbl.add h b2 (d_v,zero)
+      |Some(d1,d2)->Hashtbl.replace h b2 (d1++d_v,d2) in 
+    Hashtbl.add h b_init (one,zero);
+    Hashtbl.add h b_final (zero,one);
+    M_d.iter add_d d_vars;
     Hashtbl.fold (
-      fun b_id b_p l ->
-        (Cnstr.eq (b_p -- (find_m b_id f_vars)) zero)::l
-    ) h []
-    in make obj (time_cnstr::final_cnstr::flow_cnstr)
+      fun b_id (p1,p2) l -> Cnstr.eq (M_key.find b_id b_vars) p1::Cnstr.eq (M_key.find b_id b_vars) p2::l
+    ) h [] 
+    in make obj (time_cnstr::flow_cnstr)
 
 let bar total = 
   let open Progress.Line in 
@@ -135,7 +151,6 @@ let debug_ilp b_id icfg def_meths =
   let rb = reachable_blocks icfg b_id def_meths in 
   let prob = create_problem icfg b_id rb def_meths in 
   let open Format in 
-  printf "%s\n" (Lp.to_string ~short:true  prob);
   match Lp_glpk.solve prob with 
   |Ok(obj,vars)->
     printf "result for %s\n" (Block_id.method_string b_id);
@@ -143,7 +158,7 @@ let debug_ilp b_id icfg def_meths =
     printf "with block counts:\n";
     Lp.PMap.iter (fun b v ->
       let s = (Lp.Poly.to_string ~short:true b) in 
-      if s.[String.length s -1] = 'f'&&(v=0.) then () else 
+      if (s.[String.length s -1] = '!') then () else 
         printf "%F <- %s\n" v s) vars
   |Error msg -> printf "%s for method %s" msg (Block_id.method_string b_id)
 

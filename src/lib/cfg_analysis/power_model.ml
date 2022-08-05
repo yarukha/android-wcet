@@ -6,7 +6,7 @@ module type Value_Type = sig
   val compare : t -> t -> int
   val min : t -> t -> t
   val max : t -> t -> t
-  val init : t
+  val zero : t
   val range : t
   val add : t -> t -> t
   val minus : t -> t -> t
@@ -27,7 +27,7 @@ module FloatValue : Value_Type with type t = float = struct
   let compare = Float.compare
   let min = min 
   let max = max
-  let init = 0.
+  let zero = 0.
   let range = 1.
   let add = (+.)
   let minus = (-.)
@@ -38,7 +38,7 @@ end
 
 module T : PowerModel= struct 
   include FloatValue
-  let given_value = 100.
+  let given_value =  20.
   let from_instr instr= 
     let t= Array.make number_instructions 0. in 
     Random.init 32;
@@ -79,7 +79,7 @@ module Block_Model(Et:PowerModel) = struct
     let label (x:X.t) = x.z 
   end
   let over_max x = given_value <= x 
-  let from_block (b:block) def_meths = 
+  let from_block def_meths (b:block) = 
     List.fold_left (
       fun t i -> match i.op with 
       |Opn(Invoke(_),_)->
@@ -89,9 +89,9 @@ module Block_Model(Et:PowerModel) = struct
         else
           Et.add t (Et.add (from_native m_id) (from_instr i))
       |_-> Et.add t (from_instr i)
-    ) init b
+    ) zero b
   let lt x y =
     Et.compare x y <0
   let lez x = 
-    Et.(<=) x Et.init
+    Et.(<=) x Et.zero
 end
