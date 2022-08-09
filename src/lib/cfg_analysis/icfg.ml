@@ -36,7 +36,7 @@ module Make_Icfg(Ord: Map.OrderedType) = struct
 
     
   (**find node value*)
-  let find_value = 
+  let find_value : key -> 'a t -> 'a= 
     fun k g -> (M.find k g).value
 
   (**find successor of node*)

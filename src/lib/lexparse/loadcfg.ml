@@ -16,7 +16,7 @@ let parse_with_errors lexbuf =
     Printf.fprintf stderr "%a: %s\n" print_position lexbuf msg;
     None
   |Cfgparser.Error ->
-    Printf.fprintf stderr "%a: syntax error\n" print_position lexbuf;
+    Printf.fprintf stderr "%a: syntax error in bytecode\n" print_position lexbuf;
     exit (-1)
 
 let cfg lb = 

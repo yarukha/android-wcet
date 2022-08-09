@@ -1,9 +1,9 @@
 (library
- (name lexparsecfg)
+ (name lexparse)
  (libraries cfg_analysis))
 
 
 (menhir
-  (modules cfgparser))
+  (modules cfgparser modelparser))
 
-(ocamllex cfglexer)
+(ocamllex cfglexer modellex)

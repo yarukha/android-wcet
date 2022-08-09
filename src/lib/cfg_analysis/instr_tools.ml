@@ -25,6 +25,8 @@ let invoke_type_to_string = function
 
 let catch_args op i =
    match op with 
+   (*only the "interesting" arguments are catched, namely methods name in invoke
+  and all modified registers*)
   |Opn(Invoke(_),_)-> 
     let buf = Buffer.create 20 in 
     let add = ref false in 
@@ -34,16 +36,9 @@ let catch_args op i =
     let b = Buffer.contents buf in
     let s =String.sub (b) 2 (String.length b -4 )in
     [s]
-  |Op2(Ifz(_),_)->
-    let s = List.nth (String.split_on_char ' ' i) 1 in 
-    let s' = List.hd (String.split_on_char ',' s) in
-    [s']
-  |Op3(If(_),_)-> 
-    let l = String.split_on_char ' ' i in 
-    let s1 = List.nth l 1 and s2 = List.nth l 2 in 
-    let s1' = List.hd (String.split_on_char ',' s1) and s2' = List.hd (String.split_on_char ',' s2) in
-    [s1';s2']
-  |_ -> []
+  |_ ->
+    Str.split (Str.regexp {| \|, \| #\| // |}) i
+    |>List.tl
 
 
 let catch p i = 
@@ -276,8 +271,8 @@ let catch p i =
   |"shl-int/lit8" -> Op3(Arithm(Shl,Int),Lit8)
   |"shr-int/lit8" -> Op3(Arithm(Shr,Int),Lit8)
   |"ushr-int/lit8" -> Op3(Arithm(Ushr,Int),Lit8)
-  |"const-method-handle"
-  |"const-method-type" -> raise(NotTranslated(instr))
+  |"const-method-handle"-> Op2(ConstMethodHandle,Empty)
+  |"const-method-type" -> Op2(ConstMethodType,Empty)
   |"array-data" -> Opn(ArrayData,Empty)
   |_ -> raise(UnknownInstruction(instr))
   in let args = catch_args op i 

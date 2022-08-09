@@ -1,4 +1,4 @@
-
+let max_string_size = 230
 
 type t = {m_id : string; n_id: string; sub_id : int}
 let compare  =compare
@@ -19,6 +19,13 @@ let to_string ?(short=short_printing) b =
 let to_string_nice b = 
   let s = to_string ~short:false b in 
   String.map (function |' '|':'|'<'|'>'|'['|']'->'_'|c->c) s
+
+(**returns a string that can be used as a filename suffix*)
+let filename b_id = 
+  let s = to_string_nice b_id in 
+  if String.length s > max_string_size then String.sub s 0 max_string_size 
+  else s
+
 let pp b = Format.printf "%s\n" (to_string b)
 let dummy = from_meth_string ""
 

@@ -21,7 +21,6 @@ type op1 =
   |Throw
   |Goto
 type op2 = 
-  |Move of data_type
   |Const of data_type
   |CheckCast
   |ArrayLength 
