@@ -30,3 +30,7 @@ truc.lp
 .vscode/settings.json
 input/hello.apk
 tasklist
+input/model.txt
+.vscode/configurationCache.log
+.vscode/dryrun.log
+.vscode/targets.log
