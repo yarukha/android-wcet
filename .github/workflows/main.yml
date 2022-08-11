@@ -31,6 +31,6 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
           
-      - run: opam install . --deps-only --with-test
+      - run: opam install dune menhir fix apron progress lp-glpk camlzip
 
-      - run: opam exec -- dune build
+      - run: make
