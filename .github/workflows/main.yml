@@ -34,4 +34,4 @@ jobs:
       - name: Install dependencies
         run: opam install dune menhir fix apron progress lp-glpk camlzip
 
-      - run: dune build
+      - run: opam exec -- dune build
