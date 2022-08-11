@@ -101,13 +101,23 @@ module MakeSolver(A:Analysis_spec)= struct
         |_->widening (abstract bi) (join_pred v s)         
   let valuation = F.lfp equations 
 
+  let scarlar2float (scal:Scalar.t) = 
+    match scal with 
+    |Float(f)->f
+    |Mpqf(m)->Mpqf.to_float m
+    |Mpfrf(m)->Mpfrf.to_float m
+
+  let abs2cnst abs b_id =
+    let int = Abstract1.bound_variable man abs (Var.of_string (Block_id.to_string ~short:true b_id)) in 
+    (scarlar2float int.inf,scarlar2float int.sup)
+
+  (*the constrainsts are just an inerval represented by a couple of floats
+     the conversion to Lp constraints is done in Construct_ilp*)
   let block_constraints = 
     S_key.fold (
-      fun b_id m ->
+      fun b_id ->
         let a = valuation {block=b_id;pos=Return} in 
-        let int = Abstract1.bound_variable man a (Var.of_string (Block_id.to_string ~short:true b_id)) in 
-        let _ = int in 
-        m
+        M_key.add b_id(abs2cnst a b_id) 
     ) blocks_set M_key.empty
 
 
