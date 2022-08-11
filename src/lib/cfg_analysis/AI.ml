@@ -107,7 +107,7 @@ module MakeSolver(A:Analysis_spec)= struct
     |Mpqf(m)->Mpqf.to_float m
     |Mpfrf(m)->Mpfrf.to_float m
 
-  let abs2cnst abs b_id =
+  let abs2int abs b_id =
     let int = Abstract1.bound_variable man abs (Var.of_string (Block_id.to_string ~short:true b_id)) in 
     (scarlar2float int.inf,scarlar2float int.sup)
 
@@ -117,7 +117,7 @@ module MakeSolver(A:Analysis_spec)= struct
     S_key.fold (
       fun b_id ->
         let a = valuation {block=b_id;pos=Return} in 
-        M_key.add b_id(abs2cnst a b_id) 
+        M_key.add b_id(abs2int a b_id) 
     ) blocks_set M_key.empty
 
 
