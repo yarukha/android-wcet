@@ -20,7 +20,6 @@ end
 
 module type PowerModel = sig 
   include Value_Type
-  val given_value : t
   val from_instr : instruction ->t 
   
   val from_native : string -> t M_s.t -> t 
@@ -43,7 +42,6 @@ end
 
 module T : PowerModel= struct 
   include Value
-  let given_value =  100.
   let from_instr instr= 
     let t= Array.make number_instructions 0. in 
     Random.init 32;
@@ -59,7 +57,6 @@ end
 
 module E : PowerModel= struct 
   include Value
-  let given_value = 10000.
   let from_instr instr= 
     let t= Array.make number_instructions 0. in 
     Random.init 33;
@@ -75,8 +72,9 @@ end
 
 type p_m = Value.t M_s.t* Value.t M_s.t
 
-module Block_Model(Et:PowerModel)(M: sig val m: Et.t M_s.t end) = struct 
+module Block_Model(Et:PowerModel)(M: sig val m: Et.t M_s.t val given_value :Et.t end) = struct 
   include Et
+  let given_value = M.given_value
   module S = Icfg.Block_Icfg.S_Meth 
   module T(Ord: Set.OrderedType ) = struct 
     type t = {t:Et.t;z:Ord.t}

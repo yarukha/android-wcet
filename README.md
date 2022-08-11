@@ -2,8 +2,7 @@ To install dependencies
 ```
 opam install dune menhir fix apron progress lp-glpk camlzip
 ```
-You need sdk-platform tools https://developer.android.com/studio/releases/platform-tools
-
+You need sdk-platform tools https://developer.android.com/studio/releases/platform-tools. Make sure that `dexdump` is in your PATH
 As well as glpk, for instance on arch 
 ```
 sudo pacman -S glpk

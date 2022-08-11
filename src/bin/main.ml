@@ -6,11 +6,15 @@ let usage_msg = "wcec [-verbose] -a <app.apk> [-p <powermodel>]"
 let verbose = ref false
 let input_app = ref ""
 let input_pm = ref ""
+let given_t = ref 100.
+let given_e = ref 100000.
 let speclist =
   [
     ("--verbose", Arg.Set verbose, "Output debug information");
     ("-a", Arg.Set_string input_app, "Set .apk file to analyse");
-    ("-p", Arg.Set_string input_pm, "Set power model file to use")
+    ("-p", Arg.Set_string input_pm, "Set power model file to use");
+    ("--given-time", Arg.Set_float given_t, "Set value to the given time in the analysis");
+    ("--given-energy", Arg.Set_float given_e, "Set value to the given energy in the analysis")
   ]
 
 let anon_fun = 
@@ -52,10 +56,12 @@ let () =
   let module M_c = struct 
     let mt = fst @@ p_m
     let me = snd @@ p_m
+    let given_t = !given_t
+    let given_e = !given_e
   end in 
   let module ILP_construct = Construct_ilp.Build(M_c) in
 
   let b0 = Block_id.from_meth_string "int android.support.v7.internal.widget.ListPopupWindow.buildDropDown()" in
   let b1 = Block_id.from_meth_string "void android.support.v4.app.ActionBarDrawerToggle$SlideDrawable.draw(android.graphics.Canvas)" in 
   let _ = b0 and _= b1 in 
-  ILP_construct.analyze_icfg ~out:(Some"output") icfg def_meths
+  ILP_construct.analyze_icfg ~out:(None) icfg def_meths

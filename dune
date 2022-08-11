@@ -1,6 +1,2 @@
 (env
- (dev (flags (:standard )))
- (flambda
-  (flags (:standard -flambda -02)))
- (release
-  (ocamlopt_flags (:standard -O3))))
+ (dev (flags (:standard))))

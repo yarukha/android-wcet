@@ -1,15 +1,17 @@
 open Power_model
 open Icfg
 
-module type M_couple = sig 
+module type ILP_spec = sig 
   val mt : Value.t M_s.t 
   val me : Value.t M_s.t
+  val given_t : Value.t
+  val given_e : Value.t
 end
 
-module Build(M:M_couple)  = struct
+module Build(M: ILP_spec)  = struct
 
-  module Bt = Block_Model(T)(struct let m = M.mt end)
-  module Be = Block_Model(E)(struct let m = M.me end)
+  module Bt = Block_Model(T)(struct let m = M.mt let given_value = M.given_t end)
+  module Be = Block_Model(E)(struct let m = M.me let given_value = M.given_e end)
 
   module S_key = Block_Icfg.S_Meth
   module M_key = Map.Make(Block_id)
