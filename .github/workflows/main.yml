@@ -31,6 +31,10 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
           
-      - run: opam install dune menhir fix apron progress lp-glpk camlzip
+      - name: Install glpk
+        run: sudo apt-get install glpk
+          
+      - name: Install dependencies
+        run: opam install dune menhir fix apron progress lp-glpk camlzip
 
       - run: make
