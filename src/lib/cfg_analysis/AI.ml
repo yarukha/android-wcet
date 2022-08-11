@@ -20,6 +20,7 @@ let add_pred key pred (g:pred_graph) :pred_graph=
 
 
 module S_key = Set.Make(Block_id)
+module M_key = Map.Make(Block_id)
 module I_cfg = Icfg.Block_Icfg.Icfg
 
 
@@ -98,7 +99,16 @@ module MakeSolver(A:Analysis_spec)= struct
         |0->failwith "no predecessor"
         |1->meet (abstract bi) (v @@ S_bi.choose s)
         |_->widening (abstract bi) (join_pred v s)         
-  let v = F.lfp equations 
+  let valuation = F.lfp equations 
+
+  let block_constraints = 
+    S_key.fold (
+      fun b_id m ->
+        let a = valuation {block=b_id;pos=Return} in 
+        let int = Abstract1.bound_variable man a (Var.of_string (Block_id.to_string ~short:true b_id)) in 
+        let _ = int in 
+        m
+    ) blocks_set M_key.empty
 
 
 end
