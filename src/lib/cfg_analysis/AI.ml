@@ -117,7 +117,7 @@ module MakeSolver(A:Analysis_spec)= struct
 
   (*the constrainsts are just an inerval represented by a couple of floats
      the conversion to Lp constraints is done in Construct_ilp*)
-  let block_constraints = 
+  let method_constraints = 
     S_key.fold (
       fun b_id ->
         let a = valuation {block=b_id;pos=Return} in 
@@ -139,7 +139,7 @@ end
 let cnst_b b_id icfg = 
   let module A_spec = struct let b_entry = b_id let icfg = icfg end in 
   let module Solver = MakeSolver(A_spec) in
-  Solver.block_constraints 
+  Solver.method_constraints 
 
 
 

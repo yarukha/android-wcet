@@ -16,6 +16,8 @@ module Build(M: ILP_spec)  = struct
   module S_key = Block_Icfg.S_Meth
   module M_key = Map.Make(Block_id)
 
+  module Icfg_ = Block_Icfg.Icfg 
+
 
   module Ord  = struct 
     type t = Value.t * (Block_id.t * Block_id.t)
@@ -31,7 +33,7 @@ module Build(M: ILP_spec)  = struct
   let reachable_blocks icfg b0 def_meths=
     let reached_h = Hashtbl.create 32 in 
     let links_h = Hashtbl.create 32 in 
-    let block0 = Block_Icfg.Icfg.find_value b0 icfg in 
+    let block0 = Icfg_.find_value b0 icfg in 
     let s0 = So.singleton (Bt.from_block def_meths block0,(Block_id.dummy,b0)) in
     let is_minimal k t= 
       match Hashtbl.find_opt reached_h k with 
@@ -43,8 +45,8 @@ module Build(M: ILP_spec)  = struct
         |None-> () 
         |Some(t,(k1,k2))->
           let s' = So.remove (t,(k1,(k2))) s in
-          let block = Block_Icfg.Icfg.find_value k2 icfg in 
-          let next = Block_Icfg.Icfg.find_next k2 icfg in 
+          let block = Icfg_.find_value k2 icfg in 
+          let next = Icfg_.find_next k2 icfg in 
           let curr_t = Bt.add t (Bt.from_block def_meths block) in 
           let not_min = not (is_minimal k2 curr_t) in
           if (Bt.over_max curr_t||not_min) then 
@@ -77,14 +79,14 @@ module Build(M: ILP_spec)  = struct
   module S_d = Set.Make(D)
   module M_d = Map.Make(D)  
 
-  let create_problem icfg b0 rb def_meths= 
+  let create_problem icfg b0 rb bound_map def_meths= 
     let b_init = Block_id.from_meth_string "init" and b_final = Block_id.from_meth_string "final" in
     let (t_map,e_map) =
         (M_key.empty|>M_key.add b_init Bt.zero|>M_key.add b_final Bt.zero,
         M_key.empty|>M_key.add b_init  Be.zero|>M_key.add b_final Be.zero) 
       |>S_key.fold (
       fun b_id (t_m,e_m) ->
-        let block = Block_Icfg.Icfg.find_value b_id icfg in 
+        let block = Icfg_.find_value b_id icfg in 
         let b_t = Bt.from_block def_meths block and b_e = Be.from_block def_meths block in 
         (M_key.add b_id b_t t_m,M_key.add b_id b_e e_m)
       ) rb  in  
@@ -99,7 +101,7 @@ module Build(M: ILP_spec)  = struct
     let s_d = S_key.fold (
       fun b_id s-> match Block_Icfg.split_invoke b_id icfg with 
         |None->
-          let next = Block_Icfg.Icfg.find_next b_id icfg in 
+          let next = Icfg_.find_next b_id icfg in 
           Block_Icfg.S_Edg.fold (fun edg s' -> if S_key.mem edg.next rb then S_d.add (b_id,edg.next) s' else s') next s
           |>S_d.add (b_id,b_final)
         |Some(inv,after_inv)->
@@ -137,8 +139,42 @@ module Build(M: ILP_spec)  = struct
       M_d.iter add_d d_vars;
       Hashtbl.fold (
         fun b_id (p1,p2) l -> Cnstr.eq (M_key.find b_id b_vars) p1::Cnstr.eq (M_key.find b_id b_vars) p2::l
-      ) h [] 
-      in make obj (time_cnstr::flow_cnstr)
+      ) h [] in 
+
+    let bound_cnstr = 
+      (*set of blocks with non trivial bounds*)
+      let bounded_blocks = M_key.fold (
+        fun b_id m s->
+          if S_key.mem b_id rb then 
+          M_key.fold (fun b_id' bound s' -> if not@@S_key.mem b_id' rb then s' else  
+            match bound with |None,None->s|_->S_key.add b_id' s') m s
+          else s
+        ) bound_map S_key.empty in 
+      (*each entry block point to a poly of the blocks that invoke it*)
+      let invokes_poly = 
+        S_key.fold (
+          fun b_id m ->match Block_Icfg.split_invoke b_id icfg with 
+            |None-> m
+            |Some(inv,_)->if S_key.mem inv rb then (match M_key.find_opt inv m with 
+              |None->M_key.add inv (M_key.find b_id b_vars) m
+              |Some(p)->M_key.add inv (p ++ M_key.find b_id b_vars) m
+              ) else m
+        ) rb M_key.empty in 
+      S_key.fold (
+        fun b_id l -> 
+          let b_v = M_key.find b_id b_vars in 
+          let inv_p = match M_key.find_opt (Block_id.entry_node b_id) invokes_poly with 
+          |None-> one 
+          |Some(p)->p in 
+          let bounds = (M_key.find (Block_id.entry_node b_id) bound_map)|> M_key.find b_id in 
+          match fst bounds with |None->l |Some(f)->List.cons ((inv_p*~(c f))<~b_v) l
+          |>match snd bounds with |None->Fun.id |Some(f)->List.cons (b_v<~((c 2.)++(inv_p*~(c f)))) 
+      ) bounded_blocks [] 
+      
+
+
+
+      in make obj (time_cnstr::bound_cnstr@flow_cnstr)
 
 
 
@@ -154,9 +190,9 @@ module Build(M: ILP_spec)  = struct
     |Error msg -> failwith (Format.sprintf "%s for method %s" msg (Block_id.to_string ~short:false b_id))
 
 
-  let debug_ilp b_id icfg def_meths = 
+  let debug_ilp b_id icfg bound_map def_meths = 
     let rb = reachable_blocks icfg b_id def_meths in 
-    let prob = create_problem icfg b_id rb def_meths in 
+    let prob = create_problem icfg b_id rb bound_map def_meths in 
     let open Format in 
     match Lp_glpk.solve prob with 
     |Ok(obj,vars)->
@@ -173,7 +209,7 @@ let bar total msg=
   let open Progress.Line in 
   list [const msg;spinner (); bar total;percentage_of total] 
 
-  let analyze_icfg ?(out=None) (icfg : Instructions.block Block_Icfg.Icfg.t) def_meths  = 
+  let analyze_icfg ?(out=None) (icfg : Instructions.block Icfg_.t) bound_map def_meths  = 
     let n = (S_key.cardinal def_meths) in 
     let module Vs=Bt.Make_Value_set(Block_id) in 
     let msg = Format.sprintf "solving %i ILP" n in 
@@ -181,8 +217,8 @@ let bar total msg=
       S_key.fold (
         fun b_id (s,i) -> 
           let rb = reachable_blocks icfg b_id def_meths in
-          let prob = create_problem icfg b_id rb def_meths in
-          let obj = solve_problem ~out:out b_id prob in 
+          let prob = create_problem icfg b_id rb bound_map def_meths in
+          let obj = solve_problem ~out:out b_id  prob in 
           report i;
           (Vs.add_v obj b_id s,i)
     ) def_meths (Vs.empty,1)) in

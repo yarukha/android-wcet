@@ -70,5 +70,5 @@ let () =
   let b2 = Block_id.from_meth_string "android.database.Cursor android.support.v4.content.FileProvider.query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)" in
   let _ = b0 and _= b1 and _ = b2 in 
 
-  let _ = AI.cnst_map icfg def_meths in 
-  ILP_construct.analyze_icfg ~out:(None) icfg def_meths 
+  let bound_map  = AI.cnst_map icfg def_meths in 
+  ILP_construct.analyze_icfg ~out:(None) icfg bound_map def_meths 

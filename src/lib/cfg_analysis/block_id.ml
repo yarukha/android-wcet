@@ -29,6 +29,8 @@ let filename b_id =
 let pp b = Format.printf "%s\n" (to_string b)
 let dummy = from_meth_string ""
 
+let entry_node b_id = 
+  {b_id with n_id="0"; sub_id=0}
 let is_method_entry b_id = 
   b_id.n_id = "0" && b_id.sub_id= 0
 let return_node b_id = 
