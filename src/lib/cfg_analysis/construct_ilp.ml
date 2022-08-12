@@ -140,9 +140,6 @@ module Build(M: ILP_spec)  = struct
       ) h [] 
       in make obj (time_cnstr::flow_cnstr)
 
-  let bar total msg= 
-    let open Progress.Line in 
-    list [const msg;spinner (); bar total;percentage_of total] 
 
 
 
@@ -172,11 +169,14 @@ module Build(M: ILP_spec)  = struct
           printf "%F <- %s\n" v s) vars
     |Error msg -> printf "%s for method %s" msg (Block_id.method_string b_id)
 
+let bar total msg= 
+  let open Progress.Line in 
+  list [const msg;spinner (); bar total;percentage_of total] 
 
   let analyze_icfg ?(out=None) (icfg : Instructions.block Block_Icfg.Icfg.t) def_meths  = 
     let n = (S_key.cardinal def_meths) in 
     let module Vs=Bt.Make_Value_set(Block_id) in 
-    let msg = Format.sprintf "%i methods" n in 
+    let msg = Format.sprintf "solving %i ILP" n in 
     let (s_values,_)= Progress.with_reporter (bar n msg) (fun report ->
       S_key.fold (
         fun b_id (s,i) -> 

@@ -26,7 +26,7 @@ module I_cfg = Icfg.Block_Icfg.Icfg
 
 module MakeSolver(A:Analysis_spec)= struct 
   open Apron
-  module Domain = Oct
+  module Domain = Box
   let man = Domain.manager_alloc ()
   let blocks_set = 
     I_cfg.filter_set (Block_id.same_method A.b_entry) A.icfg
@@ -90,6 +90,8 @@ module MakeSolver(A:Analysis_spec)= struct
   
   let abstract = Instr2abs.transform man env
 
+
+
   let equations : F.equations=
     fun bi v -> 
       if bi = bi_init then top 
@@ -98,7 +100,7 @@ module MakeSolver(A:Analysis_spec)= struct
       |Some(s)->match S_bi.cardinal s with 
         |0->failwith "no predecessor"
         |1->meet (abstract bi) (v @@ S_bi.choose s)
-        |_->widening (abstract bi) (join_pred v s)         
+        |_->top        
   let valuation = F.lfp equations 
 
   let scarlar2float (scal:Scalar.t) = 
@@ -109,7 +111,9 @@ module MakeSolver(A:Analysis_spec)= struct
 
   let abs2int abs b_id =
     let int = Abstract1.bound_variable man abs (Var.of_string (Block_id.to_string ~short:true b_id)) in 
-    (scarlar2float int.inf,scarlar2float int.sup)
+    let low = if (Scalar.cmp_int int.inf 0) <= 0 then None else Some(scarlar2float int.inf) in
+    let high = if Scalar.is_infty int.sup != 0   then None else Some(scarlar2float int.sup) in 
+    low,high
 
   (*the constrainsts are just an inerval represented by a couple of floats
      the conversion to Lp constraints is done in Construct_ilp*)
@@ -121,5 +125,43 @@ module MakeSolver(A:Analysis_spec)= struct
     ) blocks_set M_key.empty
 
 
+  (**dump all constraints of the block set*)
+  let dump () = 
+    S_key.iter (
+      fun b_id-> 
+        Abstract1.fdump man (valuation {block=b_id;pos=Return})
+    ) blocks_set
+
 end
     
+
+
+let cnst_b b_id icfg = 
+  let module A_spec = struct let b_entry = b_id let icfg = icfg end in 
+  let module Solver = MakeSolver(A_spec) in
+  Solver.block_constraints 
+
+
+
+let cnst_map icfg def_meths = 
+  let n= S_key.cardinal def_meths in 
+  let bar = 
+    let open Progress.Line in 
+    let msg = Format.sprintf "deducing constraints" in 
+    list [const msg; spinner (); bar n; percentage_of n] 
+  in
+  let (map,_) = Progress.with_reporter bar (fun report -> 
+    S_key.fold (
+      fun b_id (m,i) -> 
+        let cnst = cnst_b b_id icfg in 
+        report i;
+        (M_key.add b_id cnst m,i) 
+    ) def_meths (M_key.empty,1)
+  )(* 
+  let (map,_) = S_key.fold (
+      fun b_id (m,i) -> 
+        Format.printf "%i " i;Block_id.pp b_id;flush stdout;
+        let cnst = cnst_b b_id icfg in 
+        (M_key.add b_id cnst m,i+1) 
+    ) def_meths (M_key.empty,1) *)
+ in map

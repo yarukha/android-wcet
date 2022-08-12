@@ -51,6 +51,8 @@ let () =
       let model = Loadmodel.model lb in 
       close_in c; model
   in
+  let module S_key = Set.Make(Block_id) in
+  let module M_key = Map.Make(Block_id) in 
   let def_meths = Icfg.Block_Icfg.defined_methods cfg in 
   let icfg = Icfg.Block_Icfg.create cfg def_meths in 
   let module M_c = struct 
@@ -61,7 +63,12 @@ let () =
   end in 
   let module ILP_construct = Construct_ilp.Build(M_c) in
 
+     
+
   let b0 = Block_id.from_meth_string "int android.support.v7.internal.widget.ListPopupWindow.buildDropDown()" in
   let b1 = Block_id.from_meth_string "void android.support.v4.app.ActionBarDrawerToggle$SlideDrawable.draw(android.graphics.Canvas)" in 
-  let _ = b0 and _= b1 in 
-  ILP_construct.analyze_icfg ~out:(None) icfg def_meths
+  let b2 = Block_id.from_meth_string "android.database.Cursor android.support.v4.content.FileProvider.query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)" in
+  let _ = b0 and _= b1 and _ = b2 in 
+
+  let _ = AI.cnst_map icfg def_meths in 
+  ILP_construct.analyze_icfg ~out:(None) icfg def_meths 
