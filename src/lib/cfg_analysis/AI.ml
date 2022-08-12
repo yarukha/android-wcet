@@ -4,7 +4,8 @@ module type Analysis_spec = sig
 end 
 
 type instr_pos = Return | Some of int
-type b_instr_pos = {block:Block_id.t;pos:instr_pos}  
+type b_instr_pos = {block:Block_id.t;pos:instr_pos} 
+
 module T = struct  
   type t = b_instr_pos
   let compare = compare 
@@ -28,8 +29,11 @@ module MakeSolver(A:Analysis_spec)= struct
   open Apron
   module Domain = Box
   let man = Domain.manager_alloc ()
+  let b_init =Block_id.from_meth_string "init"
+  let bi_init = {block=b_init;pos=Return}
   let blocks_set = 
     I_cfg.filter_set (Block_id.same_method A.b_entry) A.icfg
+    |>S_key.add b_init
   
   let register_vars = 
     let t = Array.make 32 @@ Var.of_string "" in 
@@ -37,13 +41,9 @@ module MakeSolver(A:Analysis_spec)= struct
       t.(i)<-Var.of_string @@ Format.sprintf "v%i" i
     done; 
     t
-  let block_vars = 
-    let n = S_key.cardinal blocks_set in 
-    let t = Array.make n @@ Var.of_string "" in 
-    let _ = S_key.fold (
-      fun b_id i ->t.(i)<- Var.of_string (Block_id.to_string ~short:true b_id);i+1) blocks_set 0 in 
-    t
-  let env = Environment.make (Array.append register_vars block_vars) [||]
+  let bc_var = Var.of_string "bc"
+  let var_array = Array.append register_vars [|bc_var|]
+  let env = Environment.make var_array [||]
 
   module P = struct 
     type property = Domain.t Abstract1.t 
@@ -65,6 +65,7 @@ module MakeSolver(A:Analysis_spec)= struct
   let pred_graph = 
     S_key.fold (
       fun b_id g -> 
+        if b_id = b_init then M_bi.add {block=A.b_entry;pos=Some 0} (S_bi.singleton bi_init) g else
         let next = I_cfg.find_next b_id A.icfg in 
         add_block_pred b_id g 
         |>I_cfg.Edg_set.fold (
@@ -74,9 +75,6 @@ module MakeSolver(A:Analysis_spec)= struct
             else g'
           ) next
     ) blocks_set M_bi.empty
-
-  let bi_init = 
-    {block=A.b_entry;pos=Some(0)}
 
   let top = Abstract1.top man env 
   let bot = Abstract1.bottom man env
@@ -88,19 +86,26 @@ module MakeSolver(A:Analysis_spec)= struct
     ) s bot 
   let widening = Abstract1.widening man 
   
-  let abstract = Instr2abs.transform man env
+  let abstract bi a= 
+  let b_id =bi.block and pos = match bi.pos with |Return -> None|Some(x)->Some(x) in 
+  Instr2abs.transform man env A.icfg b_id pos a
 
+  let abs_init = 
+    let n = Array.length var_array in 
+    let t = Array.make n (Interval.top) in 
+    t.(n-1)<-Interval.of_int 0 0;
+    Abstract1.of_box man env var_array t
 
 
   let equations : F.equations=
     fun bi v -> 
-      if bi = bi_init then top 
+      if bi = bi_init then abs_init
       else match M_bi.find_opt bi pred_graph with 
       |None->bot
       |Some(s)->match S_bi.cardinal s with 
         |0->failwith "no predecessor"
-        |1->meet (abstract bi) (v @@ S_bi.choose s)
-        |_->top        
+        |1->abstract bi (v @@ S_bi.choose s)
+        |_->top
   let valuation = F.lfp equations 
 
   let scarlar2float (scal:Scalar.t) = 
@@ -109,8 +114,8 @@ module MakeSolver(A:Analysis_spec)= struct
     |Mpqf(m)->Mpqf.to_float m
     |Mpfrf(m)->Mpfrf.to_float m
 
-  let abs2int abs b_id =
-    let int = Abstract1.bound_variable man abs (Var.of_string (Block_id.to_string ~short:true b_id)) in 
+  let abs2int abs= 
+    let int = Abstract1.bound_variable man abs bc_var in 
     let low = if (Scalar.cmp_int int.inf 0) <= 0 then None else Some(scarlar2float int.inf) in
     let high = if Scalar.is_infty int.sup != 0   then None else Some(scarlar2float int.sup) in 
     low,high
@@ -121,7 +126,7 @@ module MakeSolver(A:Analysis_spec)= struct
     S_key.fold (
       fun b_id ->
         let a = valuation {block=b_id;pos=Return} in 
-        M_key.add b_id(abs2int a b_id) 
+        M_key.add b_id(abs2int a) 
     ) blocks_set M_key.empty
 
 
@@ -157,8 +162,8 @@ let cnst_map icfg def_meths =
         report i;
         (M_key.add b_id cnst m,i) 
     ) def_meths (M_key.empty,1)
-  )(* 
-  let (map,_) = S_key.fold (
+  )
+(*   let (map,_) = S_key.fold (
       fun b_id (m,i) -> 
         Format.printf "%i " i;Block_id.pp b_id;flush stdout;
         let cnst = cnst_b b_id icfg in 
