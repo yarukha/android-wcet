@@ -22,7 +22,7 @@ let add_pred key pred (g:pred_graph) :pred_graph=
 
 module S_key = Set.Make(Block_id)
 module M_key = Map.Make(Block_id)
-module I_cfg = Icfg.Block_Icfg.Icfg
+module Icfg_ = Icfg.Block_Icfg.Icfg
 
 
 module MakeSolver(A:Analysis_spec)= struct 
@@ -32,7 +32,7 @@ module MakeSolver(A:Analysis_spec)= struct
   let b_init =Block_id.from_meth_string "init"
   let bi_init = {block=b_init;pos=Return}
   let blocks_set = 
-    I_cfg.filter_set (Block_id.same_method A.b_entry) A.icfg
+    Icfg_.filter_set (Block_id.same_method A.b_entry) A.icfg
     |>S_key.add b_init
   
   let register_vars = 
@@ -54,7 +54,7 @@ module MakeSolver(A:Analysis_spec)= struct
   module F = Fix.Fix.ForOrderedType(T)(P)
 
   let add_block_pred b_id m = 
-    let b = I_cfg.find_value b_id A.icfg in 
+    let b = Icfg_.find_value b_id A.icfg in 
     let rec foo l i m = 
       match l with 
       |[]->add_pred {block=b_id;pos=Return} {block=b_id;pos=Some(0)} m (*this is when we add an empty block*)
@@ -66,9 +66,9 @@ module MakeSolver(A:Analysis_spec)= struct
     S_key.fold (
       fun b_id g -> 
         if b_id = b_init then M_bi.add {block=A.b_entry;pos=Some 0} (S_bi.singleton bi_init) g else
-        let next = I_cfg.find_next b_id A.icfg in 
+        let next = Icfg_.find_next b_id A.icfg in 
         add_block_pred b_id g 
-        |>I_cfg.Edg_set.fold (
+        |>Icfg_.Edg_set.fold (
           fun edg g' -> 
             if S_key.mem edg.next blocks_set then 
             add_pred {block=edg.next;pos=Some(0)}{block=b_id;pos=Return} g'
@@ -87,8 +87,12 @@ module MakeSolver(A:Analysis_spec)= struct
   let widening = Abstract1.widening man 
   
   let abstract bi a= 
-  let b_id =bi.block and pos = match bi.pos with |Return -> None|Some(x)->Some(x) in 
-  Instr2abs.transform man env A.icfg b_id pos a
+  let inst_opt = match bi.pos with 
+    |Return->None
+    |Some(x)->match Icfg_.find_value bi.block A.icfg with 
+            |[]->Some Instructions.undef_instr
+            |b-> Some(List.nth b x) in 
+  Instr2abs.transform man env inst_opt a
 
   let abs_init = 
     let n = Array.length var_array in 
