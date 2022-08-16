@@ -37,7 +37,7 @@ let catch_args op i =
     let s =String.sub (b) 2 (String.length b -4 )in
     [s]
   |_ ->
-    Str.split (Str.regexp {| \|, \| #\| // |}) i
+    Str.split (Str.regexp {|,? #?\(int \|long \)?\+?|}) i 
     |>List.tl
 
 
@@ -513,4 +513,4 @@ let instruction_id i =
   |Op3(Arithm(Shr,Int),Lit8) -> 221
   |Op3(Arithm(Ushr,Int),Lit8) -> 222
   |Opn(ArrayData,Empty) -> 223
-  |_ -> failwith "no id for this operat"
+  |_ -> 256

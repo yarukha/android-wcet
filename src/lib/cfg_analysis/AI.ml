@@ -34,10 +34,12 @@ module MakeSolver(A:Analysis_spec)= struct
   let blocks_set = 
     Icfg_.filter_set (Block_id.same_method A.b_entry) A.icfg
     |>S_key.add b_init
-  
+  let reg_numbers = 64
+
   let register_vars = 
-    let t = Array.make 32 @@ Var.of_string "" in 
-    for i = 0 to 31 do 
+    
+    let t = Array.make reg_numbers @@ Var.of_string "" in 
+    for i = 0 to (reg_numbers -1) do 
       t.(i)<-Var.of_string @@ Format.sprintf "v%i" i
     done; 
     t
@@ -92,7 +94,7 @@ module MakeSolver(A:Analysis_spec)= struct
     |Some(x)->match Icfg_.find_value bi.block A.icfg with 
             |[]->Some Instructions.undef_instr
             |b-> Some(List.nth b x) in 
-  Instr2abs.transform man env inst_opt a
+  Instr2abs.transform man env inst_opt a 
 
   let abs_init = 
     let n = Array.length var_array in 
