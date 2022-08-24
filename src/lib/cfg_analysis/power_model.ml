@@ -46,7 +46,7 @@ module T : PowerModel= struct
     let t= Array.make number_instructions 0. in 
     Random.init 32;
     for i = 0 to number_instructions -1 do 
-      t.(i)<-1.
+      t.(i)<-Random.float 10.
     done;
     t.(instruction_id instr)
   let from_native s m = 
@@ -61,7 +61,7 @@ module E : PowerModel= struct
     let t= Array.make number_instructions 0. in 
     Random.init 33;
     for i = 0 to number_instructions -1 do 
-      t.(i)<-1.
+      t.(i)<-Random.float 20.
     done;
     t.(instruction_id instr)
     let from_native s m = 

@@ -70,6 +70,9 @@ type instruction = {
   args : args
 }
 
+let get_pc i = 
+  let Pc(i) = i.pc in i 
+
 let undef_instr = {pc=Pc(0);op=Undefined;args=[]}
 
 type block = instruction list

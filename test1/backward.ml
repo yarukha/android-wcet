@@ -1,13 +1,11 @@
 open Apron
 open Format
 
-module Domain = Oct
+module Domain = Box
 let man = Domain.manager_alloc ()
-(* let vars_of_id = (Array.map (fun i -> Var.of_string (Printf.sprintf "x%i" i))) 
-let env = Environment.make (vars_of_id [|1;2|]) [||] *)
-let vars_of_string = (Array.map (fun s -> Var.of_string s))
-let env = Environment.make (vars_of_string [|"x";"y"|]) [||]
-
+let x1 = Var.of_string "x1"
+let x2 = Var.of_string "x2"
+let env = Environment.make [|x1;x2|] [||]
 module T = Int 
 
 module P = struct 
@@ -33,8 +31,7 @@ let (eqs : F.equations) = fun i v -> match i with
   |2 -> abs_from_tag ["x1=0"]
   |3 -> Abstract1.widening man (v 3) (Abstract1.join man (v 2) (v 6))
   |4 -> Abstract1.meet man (v 3) (abs_from_tag ["x1<40"])
-  |5 -> Abstract1.assign_linexpr man (v 4) (Var.of_string "x2") (Parser.linexpr1_of_string env "x1") None
-  |6 -> Abstract1.assign_linexpr man (v 5) (Var.of_string "x1") (Parser.linexpr1_of_string env "x2+1") None
+  |5 -> Abstract1.assign_linexpr man (v 4) x2 (Parser.linexpr1_of_string env "x1") None
   |7 -> Abstract1.meet man (v 3) (abs_from_tag ["x1>=40"])
   |_ -> P.bottom
 

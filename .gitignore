@@ -2,6 +2,7 @@ _build/
 input/*
 input/*
 output*
+paper*
 wcec-dvk.opam
 xml/
 input/rdgn*

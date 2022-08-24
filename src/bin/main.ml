@@ -68,7 +68,7 @@ let () =
   let b0 = Block_id.from_meth_string "int android.support.v7.internal.widget.ListPopupWindow.buildDropDown()" in
   let b1 = Block_id.from_meth_string "void android.support.v4.app.ActionBarDrawerToggle$SlideDrawable.draw(android.graphics.Canvas)" in 
   let b2 = Block_id.from_meth_string "android.database.Cursor android.support.v4.content.FileProvider.query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)" in
-  let _ = b0 and _= b1 and _ = b2 in 
-
+  let _ = b0 and _= b1 and _ = b2 in
+  (* Icfg.Block_Icfg.Icfg.iter_on_nodes (fun _ n -> List.iter (fun x -> let open Instructions in let  Pc(i) = x.pc in printf "%i " i) n.value) icfg; *)
   let bound_map  = AI.cnst_map icfg def_meths in 
   ILP_construct.analyze_icfg ~out:(None) icfg bound_map def_meths 

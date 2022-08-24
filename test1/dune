@@ -1,3 +1,3 @@
 (test
  (name main)
- (libraries fix lp-glpk apron apron.octD))
+ (libraries fix lp-glpk apron apron.octD apron.boxD))
