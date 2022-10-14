@@ -18,7 +18,7 @@ let to_string ?(short=short_printing) b =
 (**string of block_id nicely formated for LP variable string*)
 let to_string_nice b = 
   let s = to_string ~short:false b in 
-  String.map (function |' '|':'|'<'|'>'|'['|']'->'_'|c->c) s
+  String.map (function |' '|':'|'<'|'>'|'['|']'|'-'->'_'|c->c) s
 
 (**returns a string that can be used as a filename suffix*)
 let filename b_id = 

@@ -6,15 +6,19 @@ let usage_msg = "wcec [-verbose] -a <app.apk> [-p <powermodel>]"
 let verbose = ref false
 let input_app = ref ""
 let input_pm = ref ""
-let given_t = ref 100.
+let given_t = ref 500.
 let given_e = ref 100000.
+let unrefined = ref false
+let progress = ref false
 let speclist =
   [
     ("--verbose", Arg.Set verbose, "Output debug information");
     ("-a", Arg.Set_string input_app, "Set .apk file to analyse");
     ("-p", Arg.Set_string input_pm, "Set power model file to use");
     ("--given-time", Arg.Set_float given_t, "Set value to the given time in the analysis");
-    ("--given-energy", Arg.Set_float given_e, "Set value to the given energy in the analysis")
+    ("--given-energy", Arg.Set_float given_e, "Set value to the given energy in the analysis");
+    ("--unrefined", Arg.Set unrefined, "Analyse without refinement through static analysis of the execution bounds" );
+    ("--progress", Arg.Set progress, "Show progress");
   ]
 
 let anon_fun = 
@@ -63,12 +67,6 @@ let () =
   end in 
   let module ILP_construct = Construct_ilp.Build(M_c) in
 
-     
-
-  let b0 = Block_id.from_meth_string "int android.support.v7.internal.widget.ListPopupWindow.buildDropDown()" in
-  let b1 = Block_id.from_meth_string "void android.support.v4.app.ActionBarDrawerToggle$SlideDrawable.draw(android.graphics.Canvas)" in 
-  let b2 = Block_id.from_meth_string "android.database.Cursor android.support.v4.content.FileProvider.query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)" in
-  let _ = b0 and _= b1 and _ = b2 in
-  (* Icfg.Block_Icfg.Icfg.iter_on_nodes (fun _ n -> List.iter (fun x -> let open Instructions in let  Pc(i) = x.pc in printf "%i " i) n.value) icfg; *)
-  let bound_map  = AI.cnst_map icfg def_meths in 
-  ILP_construct.analyze_icfg ~out:(None) icfg bound_map def_meths 
+  printf "analysis of %s %s\ngiven_t = %f\n" !input_app (if !unrefined then "without refinment" else "with refinment") !given_t; flush stdout;
+  let bound_map  = if !unrefined then M_key.empty  else AI.cnst_map icfg def_meths in 
+  ILP_construct.analyze_icfg ~out:(None) ~progress:(!progress) icfg bound_map def_meths 

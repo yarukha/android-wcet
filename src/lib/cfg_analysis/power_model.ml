@@ -61,7 +61,7 @@ module E : PowerModel= struct
     let t= Array.make number_instructions 0. in 
     Random.init 33;
     for i = 0 to number_instructions -1 do 
-      t.(i)<-Random.float 20.
+      t.(i)<-Random.float 20. 
     done;
     t.(instruction_id instr)
     let from_native s m = 
@@ -96,11 +96,11 @@ module Block_Model(Et:PowerModel)(M: sig val m: Et.t M_s.t val given_value :Et.t
       |Opn(Invoke(_),_)->
         let m_id = List.hd i.args in 
         if S.mem (Block_id.from_meth_string m_id) def_meths
-          then Et.add t (from_instr i)
+          then Et.add t (from_instr i) 
         else
           Et.add t (Et.add (from_native m_id M.m) (from_instr i))
-      |_-> Et.add t (from_instr i)
-    ) zero b
+      |_->Et.add t (from_instr i)
+    ) zero b 
   let lt x y =
     Et.compare x y <0
   let lez x = 

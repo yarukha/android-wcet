@@ -33,12 +33,12 @@ module Build(M: ILP_spec)  = struct
   let reachable_blocks icfg b0 def_meths=
     let reached_h = Hashtbl.create 32 in 
     let links_h = Hashtbl.create 32 in 
-    let block0 = Icfg_.find_value b0 icfg in 
-    let s0 = So.singleton (Bt.from_block def_meths block0,(Block_id.dummy,b0)) in
-    let is_minimal k t= 
+    let block0 = try Icfg_.find_value b0 icfg with _ -> failwith "egeg" in 
+    let s0 = So.singleton (Bt.from_block def_meths block0 ,(Block_id.dummy,b0)) in
+    let is_minimal k t= try
       match Hashtbl.find_opt reached_h k with 
       |None-> true
-      |Some(t')->Bt.lt t t' in
+      |Some(t')->Bt.lt t t' with _ -> failwith "is_min" in
     let rec foo s =
       begin 
         match So.min_elt_opt s with 
@@ -50,8 +50,8 @@ module Build(M: ILP_spec)  = struct
           let curr_t = Bt.add t (Bt.from_block def_meths block) in 
           let not_min = not (is_minimal k2 curr_t) in
           if (Bt.over_max curr_t||not_min) then 
-            foo s' 
-          else(
+            try foo s' with _ -> failwith "rec" 
+        else (
             Hashtbl.add reached_h k2 curr_t;
             if Block_id.is_return k2 then 
               match Hashtbl.find_opt links_h k2 with 
@@ -65,10 +65,9 @@ module Build(M: ILP_spec)  = struct
               |Some(inv,after_inv)->
                 Hashtbl.add links_h (Block_id.return_node inv) after_inv;
                 foo (So.add (curr_t,(k1,inv)) s'))
-        end in 
-    foo s0;
-    let s' = Hashtbl.fold (fun b_id _-> S_key.add b_id) reached_h (S_key.empty) in 
-    s'
+        end 
+    in foo s0;
+    Hashtbl.fold (fun b_id _-> S_key.add b_id) reached_h (S_key.empty)
       
       
       
@@ -209,19 +208,21 @@ let bar total msg=
   let open Progress.Line in 
   list [const msg;spinner (); bar total;percentage_of total] 
 
-  let analyze_icfg ?(out=None) (icfg : Instructions.block Icfg_.t) bound_map def_meths  = 
-    let n = (S_key.cardinal def_meths) in 
-    let module Vs=Bt.Make_Value_set(Block_id) in 
-    let msg = Format.sprintf "solving %i ILP" n in 
-    let (s_values,_)= Progress.with_reporter (bar n msg) (fun report ->
-      S_key.fold (
-        fun b_id (s,i) -> 
-          let rb = reachable_blocks icfg b_id def_meths in
-          let prob = create_problem icfg b_id rb bound_map def_meths in
-          let obj = solve_problem ~out:out b_id  prob in 
-          report i;
-          (Vs.add_v obj b_id s,i)
-    ) def_meths (Vs.empty,1)) in
+let analyze_icfg ?(out=None) ?(progress=false) (icfg : Instructions.block Icfg_.t) bound_map def_meths  = 
+  let n = (S_key.cardinal def_meths) in 
+  let module Vs=Bt.Make_Value_set(Block_id) in 
+  let msg = Format.sprintf "solving %i ILP" n in 
+  let phi = fun b_id (s,i) -> 
+      let rb = reachable_blocks icfg b_id def_meths in
+      let prob = create_problem icfg b_id rb bound_map def_meths in
+      let obj = solve_problem ~out:out b_id  prob in 
+      (Vs.add_v obj b_id s,i)
+    in 
+  let s_values = fst @@ if not progress then 
+    S_key.fold phi def_meths (Vs.empty,1) else Progress.with_reporter (bar n msg ) (fun report -> 
+    S_key.fold (
+      fun b_id (s,i) -> report i; phi b_id (s,i)
+    ) def_meths (Vs.empty,1)) in 
     match Vs.max_elt_opt s_values with 
     |None->Format.printf "big big failure: no ILP was solvable"
     |Some(max)-> let obj = Vs.value max and b_id = Vs.label max in 

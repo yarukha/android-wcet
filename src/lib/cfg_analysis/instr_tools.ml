@@ -83,7 +83,7 @@ let catch p i =
   |"new-instance" -> Op2(NewInstance,Empty)
   |"new-array" -> Op3(NewArray,Empty)
   |"filled-new-array" -> Opn(FilledNewArray,Empty)
-  |"filled-new-array/range" ->Opn(FilledNewArray,Range)
+  |"filled-new-array/range" |"filled-new-array/range,"  ->Opn(FilledNewArray,Range)
   |"fill-array-data" -> Opn(FillArrayData,Empty)
   |"throw" -> Op1(Throw,Empty)
   |"goto" -> Op1(Goto,Empty)
@@ -460,7 +460,7 @@ let instruction_id i =
   |Op3(Arithm(Sub,Double),Empty) -> 168
   |Op3(Arithm(Mul,Double),Empty) -> 169
   |Op3(Arithm(Div,Double),Empty) -> 170
-  |Op3(Arithm(Rem,Double),Empty)  ->1171
+  |Op3(Arithm(Rem,Double),Empty)  ->171
   |Op3(Arithm(Add,Int),X2Addr) -> 172
   |Op3(Arithm(Sub,Int),X2Addr) -> 173
   |Op3(Arithm(Mul,Int),X2Addr) -> 174
