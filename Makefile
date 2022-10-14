@@ -10,6 +10,7 @@ test:
 	dune runtest
 
 install:
+	dune build
 	dune install
 # Clean up
 clean:
