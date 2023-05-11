@@ -27,9 +27,6 @@ module Build(M: ILP_spec)  = struct
   end
   module So = Set.Make(Ord)
 
-
-
-
   let reachable_blocks icfg b0 def_meths=
     let reached_h = Hashtbl.create 32 in 
     let links_h = Hashtbl.create 32 in 
@@ -68,8 +65,6 @@ module Build(M: ILP_spec)  = struct
         end 
     in foo s0;
     Hashtbl.fold (fun b_id _-> S_key.add b_id) reached_h (S_key.empty)
-      
-      
       
   module D = struct 
     type t =  Block_id.t * Block_id.t
@@ -169,14 +164,8 @@ module Build(M: ILP_spec)  = struct
           match fst bounds with |None->l |Some(f)->List.cons ((inv_p*~(c f))<~b_v) l
           |>match snd bounds with |None->Fun.id |Some(f)->List.cons (b_v<~((c 2.)++(inv_p*~(c f)))) 
       ) bounded_blocks [] 
-      
-
-
 
       in make obj (time_cnstr::bound_cnstr@flow_cnstr)
-
-
-
 
   let solve_problem ?(out=None) b_id prob=
     (match out with 
