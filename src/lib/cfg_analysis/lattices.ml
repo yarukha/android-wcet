@@ -14,6 +14,8 @@ end
 
 
 module MakeSimpleLattice (T: sig type t end) : AbstractDomain = 
+struct
+
   type t = Bottom | Value of T.t | Top
 
   let bottom = Bottom
