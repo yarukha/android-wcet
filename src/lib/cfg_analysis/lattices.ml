@@ -26,7 +26,7 @@ struct
     match a,b with 
     | Bottom, x | x, Bottom -> x
     | Top, _ | _, Top -> Top 
-    | Value x , Value y -> if x = x then Value x else Top 
+    | Value x , Value y -> if x = y then Value x else Top 
 
   let union = join
 
